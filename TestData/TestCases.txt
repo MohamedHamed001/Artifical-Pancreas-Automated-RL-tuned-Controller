@@ -1,0 +1,1668 @@
+Test Case [1]
+Body Weight: 157.28 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 0
+
+Exercise Sessions:
+
+
+Test Case [2]
+Body Weight: 14.34 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 0
+
+Exercise Sessions:
+
+
+Test Case [3]
+Body Weight: 181.42 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 1
+Meal 1 Time: 215 minutes, Carb Amount: 92.32 grams
+
+Exercise Sessions:
+
+
+Test Case [4]
+Body Weight: 191.78 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 3
+Meal 1 Time: 154 minutes, Carb Amount: 144.2 grams
+Meal 2 Time: 293 minutes, Carb Amount: 155.99 grams
+Meal 3 Time: 465 minutes, Carb Amount: 37.76 grams
+
+Exercise Sessions:
+Exercise 1: Start = 30 minutes, Duration = 51 minutes
+Exercise 2: Start = 176 minutes, Duration = 54 minutes
+
+
+Test Case [5]
+Body Weight: 123.91 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 10
+Meal 1 Time: 209 minutes, Carb Amount: 193.57 grams
+Meal 2 Time: 430 minutes, Carb Amount: 95.67 grams
+Meal 3 Time: 549 minutes, Carb Amount: 150.46 grams
+Meal 4 Time: 768 minutes, Carb Amount: 154.9 grams
+Meal 5 Time: 969 minutes, Carb Amount: 173.05 grams
+Meal 6 Time: 1063 minutes, Carb Amount: 52.2 grams
+Meal 7 Time: 1156 minutes, Carb Amount: 140.45 grams
+Meal 8 Time: 1278 minutes, Carb Amount: 43.34 grams
+
+Exercise Sessions:
+Exercise 1: Start = 104 minutes, Duration = 50 minutes
+
+
+Test Case [6]
+Body Weight: 4.96 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 10
+Meal 1 Time: 232 minutes, Carb Amount: 7.81 grams
+Meal 2 Time: 398 minutes, Carb Amount: 59.84 grams
+Meal 3 Time: 547 minutes, Carb Amount: 54.92 grams
+Meal 4 Time: 622 minutes, Carb Amount: 3.65 grams
+Meal 5 Time: 801 minutes, Carb Amount: 77.81 grams
+Meal 6 Time: 986 minutes, Carb Amount: 160.9 grams
+Meal 7 Time: 1159 minutes, Carb Amount: 35.96 grams
+Meal 8 Time: 1363 minutes, Carb Amount: 34.07 grams
+
+Exercise Sessions:
+Exercise 1: Start = 49 minutes, Duration = 27 minutes
+Exercise 2: Start = 116 minutes, Duration = 41 minutes
+
+
+Test Case [7]
+Body Weight: 116.6 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 1
+Meal 1 Time: 128 minutes, Carb Amount: 106.81 grams
+
+Exercise Sessions:
+Exercise 1: Start = 64 minutes, Duration = 58 minutes
+Exercise 2: Start = 166 minutes, Duration = 52 minutes
+Exercise 3: Start = 277 minutes, Duration = 20 minutes
+Exercise 4: Start = 357 minutes, Duration = 45 minutes
+
+
+Test Case [8]
+Body Weight: 85.83 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 8
+Meal 1 Time: 194 minutes, Carb Amount: 16.37 grams
+Meal 2 Time: 353 minutes, Carb Amount: 193.54 grams
+Meal 3 Time: 541 minutes, Carb Amount: 95.58 grams
+Meal 4 Time: 624 minutes, Carb Amount: 30.16 grams
+Meal 5 Time: 828 minutes, Carb Amount: 59.51 grams
+Meal 6 Time: 978 minutes, Carb Amount: 53.37 grams
+Meal 7 Time: 1042 minutes, Carb Amount: 14.16 grams
+Meal 8 Time: 1205 minutes, Carb Amount: 125.15 grams
+
+Exercise Sessions:
+Exercise 1: Start = 38 minutes, Duration = 36 minutes
+Exercise 2: Start = 169 minutes, Duration = 29 minutes
+Exercise 3: Start = 233 minutes, Duration = 47 minutes
+
+
+Test Case [9]
+Body Weight: 173.37 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 3
+Meal 1 Time: 170 minutes, Carb Amount: 119.37 grams
+Meal 2 Time: 402 minutes, Carb Amount: 31.08 grams
+Meal 3 Time: 526 minutes, Carb Amount: 43.44 grams
+
+Exercise Sessions:
+Exercise 1: Start = 119 minutes, Duration = 28 minutes
+Exercise 2: Start = 185 minutes, Duration = 29 minutes
+
+
+Test Case [10]
+Body Weight: 194.64 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 6
+Meal 1 Time: 172 minutes, Carb Amount: 78.06 grams
+Meal 2 Time: 264 minutes, Carb Amount: 62.06 grams
+Meal 3 Time: 424 minutes, Carb Amount: 15.76 grams
+Meal 4 Time: 574 minutes, Carb Amount: 163.7 grams
+Meal 5 Time: 640 minutes, Carb Amount: 126.8 grams
+Meal 6 Time: 780 minutes, Carb Amount: 17.79 grams
+
+Exercise Sessions:
+Exercise 1: Start = 64 minutes, Duration = 17 minutes
+
+
+Test Case [11]
+Body Weight: 33.67 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 0
+
+Exercise Sessions:
+Exercise 1: Start = 91 minutes, Duration = 31 minutes
+Exercise 2: Start = 230 minutes, Duration = 39 minutes
+Exercise 3: Start = 372 minutes, Duration = 32 minutes
+Exercise 4: Start = 474 minutes, Duration = 47 minutes
+Exercise 5: Start = 574 minutes, Duration = 17 minutes
+
+
+Test Case [12]
+Body Weight: 126.42 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 10
+Meal 1 Time: 132 minutes, Carb Amount: 75.33 grams
+Meal 2 Time: 337 minutes, Carb Amount: 50.46 grams
+Meal 3 Time: 466 minutes, Carb Amount: 0.21 grams
+Meal 4 Time: 679 minutes, Carb Amount: 20.67 grams
+Meal 5 Time: 863 minutes, Carb Amount: 42.64 grams
+Meal 6 Time: 1033 minutes, Carb Amount: 170.77 grams
+Meal 7 Time: 1120 minutes, Carb Amount: 111.75 grams
+Meal 8 Time: 1342 minutes, Carb Amount: 184.67 grams
+
+Exercise Sessions:
+Exercise 1: Start = 38 minutes, Duration = 54 minutes
+Exercise 2: Start = 180 minutes, Duration = 47 minutes
+Exercise 3: Start = 337 minutes, Duration = 49 minutes
+Exercise 4: Start = 437 minutes, Duration = 31 minutes
+Exercise 5: Start = 504 minutes, Duration = 50 minutes
+
+
+Test Case [13]
+Body Weight: 93.69 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 9
+Meal 1 Time: 161 minutes, Carb Amount: 120.67 grams
+Meal 2 Time: 345 minutes, Carb Amount: 38.3 grams
+Meal 3 Time: 438 minutes, Carb Amount: 188.77 grams
+Meal 4 Time: 592 minutes, Carb Amount: 158.86 grams
+Meal 5 Time: 656 minutes, Carb Amount: 122.59 grams
+Meal 6 Time: 719 minutes, Carb Amount: 20.28 grams
+Meal 7 Time: 812 minutes, Carb Amount: 198.48 grams
+Meal 8 Time: 987 minutes, Carb Amount: 157.65 grams
+Meal 9 Time: 1162 minutes, Carb Amount: 166.06 grams
+
+Exercise Sessions:
+Exercise 1: Start = 115 minutes, Duration = 31 minutes
+Exercise 2: Start = 240 minutes, Duration = 31 minutes
+Exercise 3: Start = 312 minutes, Duration = 25 minutes
+Exercise 4: Start = 406 minutes, Duration = 44 minutes
+Exercise 5: Start = 540 minutes, Duration = 38 minutes
+
+
+Test Case [14]
+Body Weight: 165.89 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 4
+Meal 1 Time: 104 minutes, Carb Amount: 168.12 grams
+Meal 2 Time: 250 minutes, Carb Amount: 37.5 grams
+Meal 3 Time: 417 minutes, Carb Amount: 56.74 grams
+Meal 4 Time: 605 minutes, Carb Amount: 167.76 grams
+
+Exercise Sessions:
+
+
+Test Case [15]
+Body Weight: 117.01 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 9
+Meal 1 Time: 81 minutes, Carb Amount: 128.13 grams
+Meal 2 Time: 161 minutes, Carb Amount: 35.98 grams
+Meal 3 Time: 323 minutes, Carb Amount: 178.87 grams
+Meal 4 Time: 392 minutes, Carb Amount: 181.84 grams
+Meal 5 Time: 598 minutes, Carb Amount: 79.75 grams
+Meal 6 Time: 713 minutes, Carb Amount: 82.24 grams
+Meal 7 Time: 931 minutes, Carb Amount: 181.61 grams
+Meal 8 Time: 1050 minutes, Carb Amount: 48.74 grams
+Meal 9 Time: 1110 minutes, Carb Amount: 95.32 grams
+
+Exercise Sessions:
+Exercise 1: Start = 80 minutes, Duration = 27 minutes
+Exercise 2: Start = 151 minutes, Duration = 24 minutes
+Exercise 3: Start = 280 minutes, Duration = 37 minutes
+Exercise 4: Start = 415 minutes, Duration = 28 minutes
+Exercise 5: Start = 506 minutes, Duration = 45 minutes
+
+
+Test Case [16]
+Body Weight: 195.38 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 2
+Meal 1 Time: 128 minutes, Carb Amount: 108.89 grams
+Meal 2 Time: 294 minutes, Carb Amount: 36.59 grams
+
+Exercise Sessions:
+Exercise 1: Start = 36 minutes, Duration = 30 minutes
+Exercise 2: Start = 145 minutes, Duration = 30 minutes
+Exercise 3: Start = 275 minutes, Duration = 56 minutes
+Exercise 4: Start = 417 minutes, Duration = 39 minutes
+Exercise 5: Start = 524 minutes, Duration = 31 minutes
+
+
+Test Case [17]
+Body Weight: 115.1 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 10
+Meal 1 Time: 111 minutes, Carb Amount: 35.86 grams
+Meal 2 Time: 328 minutes, Carb Amount: 82.66 grams
+Meal 3 Time: 545 minutes, Carb Amount: 51.09 grams
+Meal 4 Time: 697 minutes, Carb Amount: 130.79 grams
+Meal 5 Time: 763 minutes, Carb Amount: 60.45 grams
+Meal 6 Time: 976 minutes, Carb Amount: 24.82 grams
+Meal 7 Time: 1103 minutes, Carb Amount: 57.03 grams
+Meal 8 Time: 1168 minutes, Carb Amount: 146.44 grams
+Meal 9 Time: 1274 minutes, Carb Amount: 118.25 grams
+Meal 10 Time: 1375 minutes, Carb Amount: 191.89 grams
+
+Exercise Sessions:
+
+
+Test Case [18]
+Body Weight: 49.73 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 5
+Meal 1 Time: 201 minutes, Carb Amount: 40.96 grams
+Meal 2 Time: 326 minutes, Carb Amount: 141.19 grams
+Meal 3 Time: 471 minutes, Carb Amount: 83.32 grams
+Meal 4 Time: 691 minutes, Carb Amount: 75.32 grams
+Meal 5 Time: 773 minutes, Carb Amount: 129.38 grams
+
+Exercise Sessions:
+Exercise 1: Start = 84 minutes, Duration = 30 minutes
+Exercise 2: Start = 191 minutes, Duration = 30 minutes
+Exercise 3: Start = 328 minutes, Duration = 18 minutes
+
+
+Test Case [19]
+Body Weight: 59.28 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 9
+Meal 1 Time: 147 minutes, Carb Amount: 44.91 grams
+Meal 2 Time: 347 minutes, Carb Amount: 40.8 grams
+Meal 3 Time: 480 minutes, Carb Amount: 38.22 grams
+Meal 4 Time: 639 minutes, Carb Amount: 32.17 grams
+Meal 5 Time: 759 minutes, Carb Amount: 175.17 grams
+Meal 6 Time: 945 minutes, Carb Amount: 130.48 grams
+Meal 7 Time: 1105 minutes, Carb Amount: 29.68 grams
+Meal 8 Time: 1175 minutes, Carb Amount: 112.49 grams
+Meal 9 Time: 1383 minutes, Carb Amount: 32.98 grams
+
+Exercise Sessions:
+Exercise 1: Start = 78 minutes, Duration = 27 minutes
+Exercise 2: Start = 145 minutes, Duration = 42 minutes
+
+
+Test Case [20]
+Body Weight: 56.52 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 1
+Meal 1 Time: 61 minutes, Carb Amount: 126.63 grams
+
+Exercise Sessions:
+Exercise 1: Start = 100 minutes, Duration = 41 minutes
+
+
+Test Case [21]
+Body Weight: 8.61 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 8
+Meal 1 Time: 128 minutes, Carb Amount: 145.23 grams
+Meal 2 Time: 355 minutes, Carb Amount: 38.29 grams
+Meal 3 Time: 417 minutes, Carb Amount: 33.53 grams
+Meal 4 Time: 582 minutes, Carb Amount: 5.18 grams
+Meal 5 Time: 671 minutes, Carb Amount: 3.54 grams
+Meal 6 Time: 804 minutes, Carb Amount: 29.35 grams
+Meal 7 Time: 913 minutes, Carb Amount: 111.56 grams
+Meal 8 Time: 1034 minutes, Carb Amount: 178.14 grams
+
+Exercise Sessions:
+Exercise 1: Start = 70 minutes, Duration = 45 minutes
+Exercise 2: Start = 159 minutes, Duration = 25 minutes
+
+
+Test Case [22]
+Body Weight: 3.67 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 2
+Meal 1 Time: 232 minutes, Carb Amount: 35.57 grams
+Meal 2 Time: 344 minutes, Carb Amount: 57.36 grams
+
+Exercise Sessions:
+Exercise 1: Start = 110 minutes, Duration = 38 minutes
+Exercise 2: Start = 218 minutes, Duration = 38 minutes
+Exercise 3: Start = 347 minutes, Duration = 52 minutes
+Exercise 4: Start = 474 minutes, Duration = 17 minutes
+
+
+Test Case [23]
+Body Weight: 121.64 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 7
+Meal 1 Time: 231 minutes, Carb Amount: 177.79 grams
+Meal 2 Time: 423 minutes, Carb Amount: 142.79 grams
+Meal 3 Time: 503 minutes, Carb Amount: 126.51 grams
+Meal 4 Time: 716 minutes, Carb Amount: 174.05 grams
+Meal 5 Time: 859 minutes, Carb Amount: 68.17 grams
+Meal 6 Time: 943 minutes, Carb Amount: 2.61 grams
+Meal 7 Time: 1076 minutes, Carb Amount: 44.49 grams
+
+Exercise Sessions:
+Exercise 1: Start = 62 minutes, Duration = 24 minutes
+Exercise 2: Start = 192 minutes, Duration = 33 minutes
+
+
+Test Case [24]
+Body Weight: 67.5 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 8
+Meal 1 Time: 78 minutes, Carb Amount: 175.83 grams
+Meal 2 Time: 277 minutes, Carb Amount: 174.33 grams
+Meal 3 Time: 345 minutes, Carb Amount: 130.16 grams
+Meal 4 Time: 515 minutes, Carb Amount: 161.36 grams
+Meal 5 Time: 642 minutes, Carb Amount: 28.58 grams
+Meal 6 Time: 751 minutes, Carb Amount: 192.0 grams
+Meal 7 Time: 928 minutes, Carb Amount: 17.88 grams
+Meal 8 Time: 1099 minutes, Carb Amount: 48.13 grams
+
+Exercise Sessions:
+
+
+Test Case [25]
+Body Weight: 167.57 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 3
+Meal 1 Time: 70 minutes, Carb Amount: 180.98 grams
+Meal 2 Time: 191 minutes, Carb Amount: 72.22 grams
+Meal 3 Time: 420 minutes, Carb Amount: 87.25 grams
+
+Exercise Sessions:
+Exercise 1: Start = 97 minutes, Duration = 50 minutes
+
+
+Test Case [26]
+Body Weight: 187.57 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 7
+Meal 1 Time: 60 minutes, Carb Amount: 141.0 grams
+Meal 2 Time: 172 minutes, Carb Amount: 64.61 grams
+Meal 3 Time: 295 minutes, Carb Amount: 140.07 grams
+Meal 4 Time: 442 minutes, Carb Amount: 7.85 grams
+Meal 5 Time: 668 minutes, Carb Amount: 68.55 grams
+Meal 6 Time: 763 minutes, Carb Amount: 130.86 grams
+Meal 7 Time: 958 minutes, Carb Amount: 146.47 grams
+
+Exercise Sessions:
+Exercise 1: Start = 87 minutes, Duration = 43 minutes
+Exercise 2: Start = 175 minutes, Duration = 49 minutes
+Exercise 3: Start = 275 minutes, Duration = 44 minutes
+Exercise 4: Start = 429 minutes, Duration = 21 minutes
+Exercise 5: Start = 488 minutes, Duration = 38 minutes
+
+
+Test Case [27]
+Body Weight: 65.67 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 5
+Meal 1 Time: 219 minutes, Carb Amount: 80.69 grams
+Meal 2 Time: 444 minutes, Carb Amount: 59.34 grams
+Meal 3 Time: 547 minutes, Carb Amount: 27.39 grams
+Meal 4 Time: 710 minutes, Carb Amount: 18.04 grams
+Meal 5 Time: 848 minutes, Carb Amount: 173.11 grams
+
+Exercise Sessions:
+Exercise 1: Start = 73 minutes, Duration = 51 minutes
+Exercise 2: Start = 190 minutes, Duration = 32 minutes
+Exercise 3: Start = 253 minutes, Duration = 60 minutes
+
+
+Test Case [28]
+Body Weight: 91.07 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 4
+Meal 1 Time: 159 minutes, Carb Amount: 60.12 grams
+Meal 2 Time: 224 minutes, Carb Amount: 147.04 grams
+Meal 3 Time: 386 minutes, Carb Amount: 91.79 grams
+Meal 4 Time: 457 minutes, Carb Amount: 124.74 grams
+
+Exercise Sessions:
+Exercise 1: Start = 111 minutes, Duration = 52 minutes
+
+
+Test Case [29]
+Body Weight: 136.7 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 7
+Meal 1 Time: 125 minutes, Carb Amount: 72.66 grams
+Meal 2 Time: 299 minutes, Carb Amount: 58.5 grams
+Meal 3 Time: 395 minutes, Carb Amount: 36.98 grams
+Meal 4 Time: 563 minutes, Carb Amount: 23.83 grams
+Meal 5 Time: 721 minutes, Carb Amount: 4.47 grams
+Meal 6 Time: 802 minutes, Carb Amount: 51.09 grams
+Meal 7 Time: 900 minutes, Carb Amount: 41.59 grams
+
+Exercise Sessions:
+
+
+Test Case [30]
+Body Weight: 124.91 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 5
+Meal 1 Time: 80 minutes, Carb Amount: 41.48 grams
+Meal 2 Time: 315 minutes, Carb Amount: 55.42 grams
+Meal 3 Time: 524 minutes, Carb Amount: 1.45 grams
+Meal 4 Time: 663 minutes, Carb Amount: 178.58 grams
+Meal 5 Time: 729 minutes, Carb Amount: 197.91 grams
+
+Exercise Sessions:
+Exercise 1: Start = 34 minutes, Duration = 45 minutes
+
+
+Test Case [31]
+Body Weight: 170.11 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 0
+
+Exercise Sessions:
+Exercise 1: Start = 72 minutes, Duration = 31 minutes
+Exercise 2: Start = 222 minutes, Duration = 50 minutes
+Exercise 3: Start = 388 minutes, Duration = 17 minutes
+Exercise 4: Start = 446 minutes, Duration = 45 minutes
+
+
+Test Case [32]
+Body Weight: 61.18 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 0
+
+Exercise Sessions:
+Exercise 1: Start = 50 minutes, Duration = 22 minutes
+
+
+Test Case [33]
+Body Weight: 182.3 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 2
+Meal 1 Time: 66 minutes, Carb Amount: 17.25 grams
+Meal 2 Time: 274 minutes, Carb Amount: 58.32 grams
+
+Exercise Sessions:
+Exercise 1: Start = 101 minutes, Duration = 43 minutes
+Exercise 2: Start = 214 minutes, Duration = 26 minutes
+Exercise 3: Start = 278 minutes, Duration = 31 minutes
+
+
+Test Case [34]
+Body Weight: 45.38 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 8
+Meal 1 Time: 203 minutes, Carb Amount: 4.22 grams
+Meal 2 Time: 340 minutes, Carb Amount: 175.6 grams
+Meal 3 Time: 508 minutes, Carb Amount: 50.62 grams
+Meal 4 Time: 727 minutes, Carb Amount: 129.91 grams
+Meal 5 Time: 793 minutes, Carb Amount: 25.82 grams
+Meal 6 Time: 973 minutes, Carb Amount: 29.65 grams
+Meal 7 Time: 1069 minutes, Carb Amount: 165.86 grams
+Meal 8 Time: 1293 minutes, Carb Amount: 86.07 grams
+
+Exercise Sessions:
+Exercise 1: Start = 102 minutes, Duration = 21 minutes
+Exercise 2: Start = 228 minutes, Duration = 34 minutes
+Exercise 3: Start = 356 minutes, Duration = 42 minutes
+Exercise 4: Start = 505 minutes, Duration = 22 minutes
+
+
+Test Case [35]
+Body Weight: 22.22 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 10
+Meal 1 Time: 127 minutes, Carb Amount: 166.52 grams
+Meal 2 Time: 290 minutes, Carb Amount: 83.03 grams
+Meal 3 Time: 359 minutes, Carb Amount: 57.06 grams
+Meal 4 Time: 592 minutes, Carb Amount: 89.71 grams
+Meal 5 Time: 711 minutes, Carb Amount: 102.1 grams
+Meal 6 Time: 813 minutes, Carb Amount: 1.71 grams
+Meal 7 Time: 884 minutes, Carb Amount: 130.61 grams
+Meal 8 Time: 1020 minutes, Carb Amount: 102.36 grams
+Meal 9 Time: 1142 minutes, Carb Amount: 12.77 grams
+Meal 10 Time: 1305 minutes, Carb Amount: 114.77 grams
+
+Exercise Sessions:
+Exercise 1: Start = 86 minutes, Duration = 47 minutes
+Exercise 2: Start = 221 minutes, Duration = 35 minutes
+Exercise 3: Start = 311 minutes, Duration = 20 minutes
+Exercise 4: Start = 449 minutes, Duration = 40 minutes
+
+
+Test Case [36]
+Body Weight: 84.47 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 7
+Meal 1 Time: 83 minutes, Carb Amount: 178.39 grams
+Meal 2 Time: 268 minutes, Carb Amount: 34.81 grams
+Meal 3 Time: 414 minutes, Carb Amount: 56.72 grams
+Meal 4 Time: 584 minutes, Carb Amount: 90.0 grams
+Meal 5 Time: 774 minutes, Carb Amount: 74.46 grams
+Meal 6 Time: 904 minutes, Carb Amount: 38.57 grams
+Meal 7 Time: 1104 minutes, Carb Amount: 96.02 grams
+
+Exercise Sessions:
+Exercise 1: Start = 95 minutes, Duration = 32 minutes
+Exercise 2: Start = 212 minutes, Duration = 57 minutes
+Exercise 3: Start = 319 minutes, Duration = 41 minutes
+Exercise 4: Start = 397 minutes, Duration = 47 minutes
+
+
+Test Case [37]
+Body Weight: 68.9 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 2
+Meal 1 Time: 75 minutes, Carb Amount: 29.99 grams
+Meal 2 Time: 307 minutes, Carb Amount: 85.25 grams
+
+Exercise Sessions:
+Exercise 1: Start = 57 minutes, Duration = 25 minutes
+Exercise 2: Start = 164 minutes, Duration = 15 minutes
+Exercise 3: Start = 249 minutes, Duration = 50 minutes
+Exercise 4: Start = 398 minutes, Duration = 32 minutes
+Exercise 5: Start = 529 minutes, Duration = 60 minutes
+
+
+Test Case [38]
+Body Weight: 68.86 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 8
+Meal 1 Time: 185 minutes, Carb Amount: 129.05 grams
+Meal 2 Time: 310 minutes, Carb Amount: 75.43 grams
+Meal 3 Time: 486 minutes, Carb Amount: 98.55 grams
+Meal 4 Time: 579 minutes, Carb Amount: 101.58 grams
+Meal 5 Time: 707 minutes, Carb Amount: 138.91 grams
+Meal 6 Time: 891 minutes, Carb Amount: 92.35 grams
+Meal 7 Time: 1048 minutes, Carb Amount: 149.64 grams
+Meal 8 Time: 1258 minutes, Carb Amount: 150.23 grams
+
+Exercise Sessions:
+Exercise 1: Start = 32 minutes, Duration = 17 minutes
+
+
+Test Case [39]
+Body Weight: 72.8 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 8
+Meal 1 Time: 225 minutes, Carb Amount: 0.83 grams
+Meal 2 Time: 354 minutes, Carb Amount: 94.1 grams
+Meal 3 Time: 486 minutes, Carb Amount: 100.68 grams
+Meal 4 Time: 596 minutes, Carb Amount: 194.99 grams
+Meal 5 Time: 826 minutes, Carb Amount: 133.2 grams
+Meal 6 Time: 1037 minutes, Carb Amount: 140.17 grams
+Meal 7 Time: 1193 minutes, Carb Amount: 91.56 grams
+Meal 8 Time: 1298 minutes, Carb Amount: 89.42 grams
+
+Exercise Sessions:
+
+
+Test Case [40]
+Body Weight: 134.12 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 1
+Meal 1 Time: 208 minutes, Carb Amount: 93.27 grams
+
+Exercise Sessions:
+
+
+Test Case [41]
+Body Weight: 25.01 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 4
+Meal 1 Time: 179 minutes, Carb Amount: 97.28 grams
+Meal 2 Time: 381 minutes, Carb Amount: 16.24 grams
+Meal 3 Time: 502 minutes, Carb Amount: 22.21 grams
+Meal 4 Time: 732 minutes, Carb Amount: 124.38 grams
+
+Exercise Sessions:
+
+
+Test Case [42]
+Body Weight: 113.21 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 10
+Meal 1 Time: 84 minutes, Carb Amount: 174.31 grams
+Meal 2 Time: 210 minutes, Carb Amount: 146.8 grams
+Meal 3 Time: 271 minutes, Carb Amount: 87.46 grams
+Meal 4 Time: 403 minutes, Carb Amount: 186.98 grams
+Meal 5 Time: 562 minutes, Carb Amount: 117.36 grams
+Meal 6 Time: 763 minutes, Carb Amount: 27.6 grams
+Meal 7 Time: 859 minutes, Carb Amount: 139.52 grams
+Meal 8 Time: 1063 minutes, Carb Amount: 53.09 grams
+Meal 9 Time: 1123 minutes, Carb Amount: 164.02 grams
+Meal 10 Time: 1288 minutes, Carb Amount: 84.91 grams
+
+Exercise Sessions:
+Exercise 1: Start = 45 minutes, Duration = 18 minutes
+Exercise 2: Start = 179 minutes, Duration = 58 minutes
+Exercise 3: Start = 325 minutes, Duration = 54 minutes
+Exercise 4: Start = 451 minutes, Duration = 54 minutes
+Exercise 5: Start = 579 minutes, Duration = 29 minutes
+
+
+Test Case [43]
+Body Weight: 198.17 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 8
+Meal 1 Time: 95 minutes, Carb Amount: 21.96 grams
+Meal 2 Time: 214 minutes, Carb Amount: 177.27 grams
+Meal 3 Time: 274 minutes, Carb Amount: 96.04 grams
+Meal 4 Time: 496 minutes, Carb Amount: 142.49 grams
+Meal 5 Time: 581 minutes, Carb Amount: 96.34 grams
+Meal 6 Time: 702 minutes, Carb Amount: 76.19 grams
+Meal 7 Time: 765 minutes, Carb Amount: 109.64 grams
+Meal 8 Time: 997 minutes, Carb Amount: 113.44 grams
+
+Exercise Sessions:
+Exercise 1: Start = 89 minutes, Duration = 58 minutes
+Exercise 2: Start = 211 minutes, Duration = 15 minutes
+Exercise 3: Start = 314 minutes, Duration = 30 minutes
+Exercise 4: Start = 380 minutes, Duration = 25 minutes
+
+
+Test Case [44]
+Body Weight: 158.11 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 4
+Meal 1 Time: 240 minutes, Carb Amount: 38.55 grams
+Meal 2 Time: 338 minutes, Carb Amount: 135.0 grams
+Meal 3 Time: 491 minutes, Carb Amount: 3.62 grams
+Meal 4 Time: 706 minutes, Carb Amount: 153.35 grams
+
+Exercise Sessions:
+
+
+Test Case [45]
+Body Weight: 130.82 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 2
+Meal 1 Time: 206 minutes, Carb Amount: 20.1 grams
+Meal 2 Time: 303 minutes, Carb Amount: 85.3 grams
+
+Exercise Sessions:
+Exercise 1: Start = 62 minutes, Duration = 28 minutes
+Exercise 2: Start = 164 minutes, Duration = 58 minutes
+Exercise 3: Start = 252 minutes, Duration = 24 minutes
+Exercise 4: Start = 315 minutes, Duration = 40 minutes
+
+
+Test Case [46]
+Body Weight: 92.89 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 0
+
+Exercise Sessions:
+Exercise 1: Start = 59 minutes, Duration = 50 minutes
+Exercise 2: Start = 180 minutes, Duration = 16 minutes
+Exercise 3: Start = 237 minutes, Duration = 32 minutes
+Exercise 4: Start = 381 minutes, Duration = 41 minutes
+Exercise 5: Start = 512 minutes, Duration = 51 minutes
+
+
+Test Case [47]
+Body Weight: 99.67 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 0
+
+Exercise Sessions:
+Exercise 1: Start = 95 minutes, Duration = 43 minutes
+Exercise 2: Start = 191 minutes, Duration = 50 minutes
+
+
+Test Case [48]
+Body Weight: 160.87 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 8
+Meal 1 Time: 85 minutes, Carb Amount: 24.77 grams
+Meal 2 Time: 192 minutes, Carb Amount: 83.35 grams
+Meal 3 Time: 430 minutes, Carb Amount: 123.74 grams
+Meal 4 Time: 523 minutes, Carb Amount: 192.09 grams
+Meal 5 Time: 695 minutes, Carb Amount: 91.36 grams
+Meal 6 Time: 842 minutes, Carb Amount: 23.5 grams
+Meal 7 Time: 1040 minutes, Carb Amount: 17.71 grams
+Meal 8 Time: 1243 minutes, Carb Amount: 95.28 grams
+
+Exercise Sessions:
+Exercise 1: Start = 69 minutes, Duration = 17 minutes
+
+
+Test Case [49]
+Body Weight: 86.51 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 3
+Meal 1 Time: 211 minutes, Carb Amount: 138.64 grams
+Meal 2 Time: 298 minutes, Carb Amount: 30.4 grams
+Meal 3 Time: 464 minutes, Carb Amount: 175.8 grams
+
+Exercise Sessions:
+Exercise 1: Start = 112 minutes, Duration = 41 minutes
+Exercise 2: Start = 249 minutes, Duration = 24 minutes
+
+
+Test Case [50]
+Body Weight: 116.83 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 10
+Meal 1 Time: 152 minutes, Carb Amount: 191.73 grams
+Meal 2 Time: 242 minutes, Carb Amount: 112.87 grams
+Meal 3 Time: 398 minutes, Carb Amount: 146.23 grams
+Meal 4 Time: 563 minutes, Carb Amount: 197.89 grams
+Meal 5 Time: 712 minutes, Carb Amount: 117.22 grams
+Meal 6 Time: 818 minutes, Carb Amount: 189.09 grams
+Meal 7 Time: 959 minutes, Carb Amount: 103.1 grams
+Meal 8 Time: 1185 minutes, Carb Amount: 33.6 grams
+Meal 9 Time: 1258 minutes, Carb Amount: 122.7 grams
+Meal 10 Time: 1379 minutes, Carb Amount: 37.95 grams
+
+Exercise Sessions:
+Exercise 1: Start = 119 minutes, Duration = 40 minutes
+Exercise 2: Start = 217 minutes, Duration = 50 minutes
+Exercise 3: Start = 304 minutes, Duration = 45 minutes
+Exercise 4: Start = 411 minutes, Duration = 53 minutes
+
+
+Test Case [51]
+Body Weight: 135.23 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 7
+Meal 1 Time: 61 minutes, Carb Amount: 116.43 grams
+Meal 2 Time: 253 minutes, Carb Amount: 89.99 grams
+Meal 3 Time: 401 minutes, Carb Amount: 127.84 grams
+Meal 4 Time: 470 minutes, Carb Amount: 137.63 grams
+Meal 5 Time: 693 minutes, Carb Amount: 184.93 grams
+Meal 6 Time: 838 minutes, Carb Amount: 11.08 grams
+Meal 7 Time: 1076 minutes, Carb Amount: 133.36 grams
+
+Exercise Sessions:
+Exercise 1: Start = 98 minutes, Duration = 55 minutes
+Exercise 2: Start = 186 minutes, Duration = 30 minutes
+
+
+Test Case [52]
+Body Weight: 15.69 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 1
+Meal 1 Time: 105 minutes, Carb Amount: 91.98 grams
+
+Exercise Sessions:
+
+
+Test Case [53]
+Body Weight: 42.96 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 5
+Meal 1 Time: 169 minutes, Carb Amount: 42.81 grams
+Meal 2 Time: 361 minutes, Carb Amount: 57.21 grams
+Meal 3 Time: 480 minutes, Carb Amount: 147.89 grams
+Meal 4 Time: 614 minutes, Carb Amount: 113.85 grams
+Meal 5 Time: 792 minutes, Carb Amount: 24.33 grams
+
+Exercise Sessions:
+Exercise 1: Start = 103 minutes, Duration = 21 minutes
+Exercise 2: Start = 241 minutes, Duration = 52 minutes
+Exercise 3: Start = 365 minutes, Duration = 19 minutes
+Exercise 4: Start = 421 minutes, Duration = 20 minutes
+
+
+Test Case [54]
+Body Weight: 26.24 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 10
+Meal 1 Time: 60 minutes, Carb Amount: 142.39 grams
+Meal 2 Time: 157 minutes, Carb Amount: 93.5 grams
+Meal 3 Time: 320 minutes, Carb Amount: 147.35 grams
+Meal 4 Time: 381 minutes, Carb Amount: 2.92 grams
+Meal 5 Time: 467 minutes, Carb Amount: 92.73 grams
+Meal 6 Time: 603 minutes, Carb Amount: 98.06 grams
+Meal 7 Time: 735 minutes, Carb Amount: 60.7 grams
+Meal 8 Time: 802 minutes, Carb Amount: 89.15 grams
+Meal 9 Time: 886 minutes, Carb Amount: 11.71 grams
+Meal 10 Time: 1034 minutes, Carb Amount: 171.61 grams
+
+Exercise Sessions:
+Exercise 1: Start = 73 minutes, Duration = 32 minutes
+Exercise 2: Start = 161 minutes, Duration = 43 minutes
+Exercise 3: Start = 269 minutes, Duration = 37 minutes
+Exercise 4: Start = 375 minutes, Duration = 56 minutes
+
+
+Test Case [55]
+Body Weight: 130.01 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 2
+Meal 1 Time: 147 minutes, Carb Amount: 71.89 grams
+Meal 2 Time: 383 minutes, Carb Amount: 115.92 grams
+
+Exercise Sessions:
+Exercise 1: Start = 97 minutes, Duration = 35 minutes
+Exercise 2: Start = 162 minutes, Duration = 39 minutes
+Exercise 3: Start = 247 minutes, Duration = 16 minutes
+
+
+Test Case [56]
+Body Weight: 128.65 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 8
+Meal 1 Time: 94 minutes, Carb Amount: 94.66 grams
+Meal 2 Time: 216 minutes, Carb Amount: 58.69 grams
+Meal 3 Time: 373 minutes, Carb Amount: 84.17 grams
+Meal 4 Time: 485 minutes, Carb Amount: 189.05 grams
+Meal 5 Time: 645 minutes, Carb Amount: 157.11 grams
+Meal 6 Time: 747 minutes, Carb Amount: 19.57 grams
+Meal 7 Time: 809 minutes, Carb Amount: 193.04 grams
+Meal 8 Time: 897 minutes, Carb Amount: 136.47 grams
+
+Exercise Sessions:
+Exercise 1: Start = 119 minutes, Duration = 43 minutes
+Exercise 2: Start = 219 minutes, Duration = 54 minutes
+Exercise 3: Start = 331 minutes, Duration = 40 minutes
+Exercise 4: Start = 437 minutes, Duration = 60 minutes
+Exercise 5: Start = 613 minutes, Duration = 44 minutes
+
+
+Test Case [57]
+Body Weight: 143.69 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 3
+Meal 1 Time: 214 minutes, Carb Amount: 82.42 grams
+Meal 2 Time: 364 minutes, Carb Amount: 162.16 grams
+Meal 3 Time: 432 minutes, Carb Amount: 115.41 grams
+
+Exercise Sessions:
+
+
+Test Case [58]
+Body Weight: 154.67 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 10
+Meal 1 Time: 112 minutes, Carb Amount: 43.59 grams
+Meal 2 Time: 340 minutes, Carb Amount: 18.09 grams
+Meal 3 Time: 552 minutes, Carb Amount: 123.61 grams
+Meal 4 Time: 783 minutes, Carb Amount: 133.06 grams
+Meal 5 Time: 938 minutes, Carb Amount: 89.15 grams
+Meal 6 Time: 1117 minutes, Carb Amount: 57.96 grams
+Meal 7 Time: 1333 minutes, Carb Amount: 172.7 grams
+
+Exercise Sessions:
+Exercise 1: Start = 49 minutes, Duration = 58 minutes
+Exercise 2: Start = 217 minutes, Duration = 59 minutes
+Exercise 3: Start = 356 minutes, Duration = 48 minutes
+Exercise 4: Start = 502 minutes, Duration = 53 minutes
+Exercise 5: Start = 661 minutes, Duration = 29 minutes
+
+
+Test Case [59]
+Body Weight: 174.32 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 2
+Meal 1 Time: 163 minutes, Carb Amount: 120.32 grams
+Meal 2 Time: 391 minutes, Carb Amount: 168.08 grams
+
+Exercise Sessions:
+Exercise 1: Start = 63 minutes, Duration = 23 minutes
+Exercise 2: Start = 185 minutes, Duration = 49 minutes
+Exercise 3: Start = 322 minutes, Duration = 57 minutes
+Exercise 4: Start = 490 minutes, Duration = 19 minutes
+Exercise 5: Start = 563 minutes, Duration = 21 minutes
+
+
+Test Case [60]
+Body Weight: 171.82 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 9
+Meal 1 Time: 236 minutes, Carb Amount: 14.44 grams
+Meal 2 Time: 328 minutes, Carb Amount: 124.57 grams
+Meal 3 Time: 548 minutes, Carb Amount: 53.32 grams
+Meal 4 Time: 730 minutes, Carb Amount: 36.13 grams
+Meal 5 Time: 956 minutes, Carb Amount: 115.22 grams
+Meal 6 Time: 1120 minutes, Carb Amount: 113.68 grams
+Meal 7 Time: 1269 minutes, Carb Amount: 8.4 grams
+
+Exercise Sessions:
+Exercise 1: Start = 32 minutes, Duration = 24 minutes
+Exercise 2: Start = 158 minutes, Duration = 45 minutes
+Exercise 3: Start = 268 minutes, Duration = 51 minutes
+Exercise 4: Start = 370 minutes, Duration = 39 minutes
+
+
+Test Case [61]
+Body Weight: 93.65 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 3
+Meal 1 Time: 179 minutes, Carb Amount: 148.84 grams
+Meal 2 Time: 365 minutes, Carb Amount: 58.32 grams
+Meal 3 Time: 446 minutes, Carb Amount: 78.24 grams
+
+Exercise Sessions:
+Exercise 1: Start = 65 minutes, Duration = 58 minutes
+
+
+Test Case [62]
+Body Weight: 198.12 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 5
+Meal 1 Time: 230 minutes, Carb Amount: 141.88 grams
+Meal 2 Time: 434 minutes, Carb Amount: 42.01 grams
+Meal 3 Time: 537 minutes, Carb Amount: 104.89 grams
+Meal 4 Time: 767 minutes, Carb Amount: 102.74 grams
+Meal 5 Time: 952 minutes, Carb Amount: 95.26 grams
+
+Exercise Sessions:
+Exercise 1: Start = 85 minutes, Duration = 38 minutes
+Exercise 2: Start = 155 minutes, Duration = 51 minutes
+Exercise 3: Start = 308 minutes, Duration = 16 minutes
+Exercise 4: Start = 431 minutes, Duration = 41 minutes
+Exercise 5: Start = 508 minutes, Duration = 37 minutes
+
+
+Test Case [63]
+Body Weight: 26.05 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 6
+Meal 1 Time: 145 minutes, Carb Amount: 49.58 grams
+Meal 2 Time: 279 minutes, Carb Amount: 45.1 grams
+Meal 3 Time: 389 minutes, Carb Amount: 28.63 grams
+Meal 4 Time: 502 minutes, Carb Amount: 157.14 grams
+Meal 5 Time: 714 minutes, Carb Amount: 84.38 grams
+Meal 6 Time: 792 minutes, Carb Amount: 12.05 grams
+
+Exercise Sessions:
+Exercise 1: Start = 67 minutes, Duration = 55 minutes
+Exercise 2: Start = 189 minutes, Duration = 35 minutes
+Exercise 3: Start = 265 minutes, Duration = 21 minutes
+Exercise 4: Start = 374 minutes, Duration = 31 minutes
+
+
+Test Case [64]
+Body Weight: 17.46 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 10
+Meal 1 Time: 152 minutes, Carb Amount: 11.53 grams
+Meal 2 Time: 242 minutes, Carb Amount: 128.75 grams
+Meal 3 Time: 410 minutes, Carb Amount: 194.63 grams
+Meal 4 Time: 513 minutes, Carb Amount: 86.38 grams
+Meal 5 Time: 700 minutes, Carb Amount: 123.05 grams
+Meal 6 Time: 866 minutes, Carb Amount: 101.0 grams
+Meal 7 Time: 942 minutes, Carb Amount: 12.79 grams
+Meal 8 Time: 1170 minutes, Carb Amount: 29.94 grams
+Meal 9 Time: 1245 minutes, Carb Amount: 133.29 grams
+
+Exercise Sessions:
+Exercise 1: Start = 57 minutes, Duration = 41 minutes
+Exercise 2: Start = 134 minutes, Duration = 26 minutes
+Exercise 3: Start = 271 minutes, Duration = 55 minutes
+Exercise 4: Start = 401 minutes, Duration = 45 minutes
+Exercise 5: Start = 488 minutes, Duration = 35 minutes
+
+
+Test Case [65]
+Body Weight: 64.45 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 10
+Meal 1 Time: 120 minutes, Carb Amount: 86.57 grams
+Meal 2 Time: 181 minutes, Carb Amount: 194.64 grams
+Meal 3 Time: 396 minutes, Carb Amount: 53.37 grams
+Meal 4 Time: 595 minutes, Carb Amount: 88.06 grams
+Meal 5 Time: 761 minutes, Carb Amount: 152.81 grams
+Meal 6 Time: 908 minutes, Carb Amount: 106.22 grams
+Meal 7 Time: 1134 minutes, Carb Amount: 142.96 grams
+Meal 8 Time: 1222 minutes, Carb Amount: 11.28 grams
+Meal 9 Time: 1361 minutes, Carb Amount: 109.96 grams
+
+Exercise Sessions:
+Exercise 1: Start = 86 minutes, Duration = 60 minutes
+
+
+Test Case [66]
+Body Weight: 182.42 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 2
+Meal 1 Time: 150 minutes, Carb Amount: 2.93 grams
+Meal 2 Time: 366 minutes, Carb Amount: 125.68 grams
+
+Exercise Sessions:
+Exercise 1: Start = 116 minutes, Duration = 51 minutes
+Exercise 2: Start = 254 minutes, Duration = 53 minutes
+Exercise 3: Start = 368 minutes, Duration = 56 minutes
+Exercise 4: Start = 537 minutes, Duration = 35 minutes
+
+
+Test Case [67]
+Body Weight: 72.19 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 2
+Meal 1 Time: 112 minutes, Carb Amount: 146.7 grams
+Meal 2 Time: 199 minutes, Carb Amount: 130.56 grams
+
+Exercise Sessions:
+Exercise 1: Start = 104 minutes, Duration = 40 minutes
+Exercise 2: Start = 257 minutes, Duration = 58 minutes
+Exercise 3: Start = 406 minutes, Duration = 27 minutes
+Exercise 4: Start = 545 minutes, Duration = 31 minutes
+Exercise 5: Start = 685 minutes, Duration = 18 minutes
+
+
+Test Case [68]
+Body Weight: 195.38 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 0
+
+Exercise Sessions:
+
+
+Test Case [69]
+Body Weight: 197.95 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 0
+
+Exercise Sessions:
+
+
+Test Case [70]
+Body Weight: 27.21 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 5
+Meal 1 Time: 97 minutes, Carb Amount: 85.75 grams
+Meal 2 Time: 252 minutes, Carb Amount: 48.21 grams
+Meal 3 Time: 397 minutes, Carb Amount: 59.93 grams
+Meal 4 Time: 610 minutes, Carb Amount: 55.68 grams
+Meal 5 Time: 733 minutes, Carb Amount: 45.02 grams
+
+Exercise Sessions:
+
+
+Test Case [71]
+Body Weight: 98.31 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 8
+Meal 1 Time: 131 minutes, Carb Amount: 129.58 grams
+Meal 2 Time: 340 minutes, Carb Amount: 134.19 grams
+Meal 3 Time: 456 minutes, Carb Amount: 109.48 grams
+Meal 4 Time: 661 minutes, Carb Amount: 144.46 grams
+Meal 5 Time: 754 minutes, Carb Amount: 95.15 grams
+Meal 6 Time: 955 minutes, Carb Amount: 2.85 grams
+Meal 7 Time: 1130 minutes, Carb Amount: 128.23 grams
+Meal 8 Time: 1296 minutes, Carb Amount: 63.1 grams
+
+Exercise Sessions:
+Exercise 1: Start = 39 minutes, Duration = 52 minutes
+Exercise 2: Start = 149 minutes, Duration = 49 minutes
+Exercise 3: Start = 289 minutes, Duration = 51 minutes
+Exercise 4: Start = 413 minutes, Duration = 20 minutes
+
+
+Test Case [72]
+Body Weight: 18.77 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 8
+Meal 1 Time: 231 minutes, Carb Amount: 192.38 grams
+Meal 2 Time: 295 minutes, Carb Amount: 30.44 grams
+Meal 3 Time: 429 minutes, Carb Amount: 6.96 grams
+Meal 4 Time: 650 minutes, Carb Amount: 67.16 grams
+Meal 5 Time: 853 minutes, Carb Amount: 178.9 grams
+Meal 6 Time: 975 minutes, Carb Amount: 125.41 grams
+Meal 7 Time: 1208 minutes, Carb Amount: 55.58 grams
+Meal 8 Time: 1396 minutes, Carb Amount: 49.07 grams
+
+Exercise Sessions:
+Exercise 1: Start = 82 minutes, Duration = 24 minutes
+
+
+Test Case [73]
+Body Weight: 53.93 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 9
+Meal 1 Time: 204 minutes, Carb Amount: 53.88 grams
+Meal 2 Time: 337 minutes, Carb Amount: 21.87 grams
+Meal 3 Time: 418 minutes, Carb Amount: 134.69 grams
+Meal 4 Time: 510 minutes, Carb Amount: 189.08 grams
+Meal 5 Time: 686 minutes, Carb Amount: 159.83 grams
+Meal 6 Time: 863 minutes, Carb Amount: 143.77 grams
+Meal 7 Time: 1049 minutes, Carb Amount: 67.66 grams
+Meal 8 Time: 1256 minutes, Carb Amount: 149.0 grams
+
+Exercise Sessions:
+Exercise 1: Start = 60 minutes, Duration = 26 minutes
+Exercise 2: Start = 155 minutes, Duration = 37 minutes
+Exercise 3: Start = 263 minutes, Duration = 53 minutes
+
+
+Test Case [74]
+Body Weight: 87.32 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 10
+Meal 1 Time: 153 minutes, Carb Amount: 199.27 grams
+Meal 2 Time: 357 minutes, Carb Amount: 119.21 grams
+Meal 3 Time: 575 minutes, Carb Amount: 165.21 grams
+Meal 4 Time: 792 minutes, Carb Amount: 33.95 grams
+Meal 5 Time: 862 minutes, Carb Amount: 100.3 grams
+Meal 6 Time: 978 minutes, Carb Amount: 17.51 grams
+Meal 7 Time: 1079 minutes, Carb Amount: 29.29 grams
+Meal 8 Time: 1259 minutes, Carb Amount: 88.5 grams
+Meal 9 Time: 1346 minutes, Carb Amount: 194.12 grams
+
+Exercise Sessions:
+Exercise 1: Start = 102 minutes, Duration = 23 minutes
+Exercise 2: Start = 168 minutes, Duration = 49 minutes
+Exercise 3: Start = 256 minutes, Duration = 47 minutes
+
+
+Test Case [75]
+Body Weight: 174.9 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 2
+Meal 1 Time: 206 minutes, Carb Amount: 178.64 grams
+Meal 2 Time: 409 minutes, Carb Amount: 170.92 grams
+
+Exercise Sessions:
+Exercise 1: Start = 81 minutes, Duration = 29 minutes
+Exercise 2: Start = 178 minutes, Duration = 41 minutes
+Exercise 3: Start = 285 minutes, Duration = 25 minutes
+Exercise 4: Start = 403 minutes, Duration = 40 minutes
+Exercise 5: Start = 499 minutes, Duration = 58 minutes
+
+
+Test Case [76]
+Body Weight: 16.93 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 10
+Meal 1 Time: 141 minutes, Carb Amount: 99.41 grams
+Meal 2 Time: 284 minutes, Carb Amount: 29.42 grams
+Meal 3 Time: 438 minutes, Carb Amount: 4.96 grams
+Meal 4 Time: 657 minutes, Carb Amount: 9.54 grams
+Meal 5 Time: 863 minutes, Carb Amount: 4.16 grams
+Meal 6 Time: 1018 minutes, Carb Amount: 35.06 grams
+Meal 7 Time: 1093 minutes, Carb Amount: 188.05 grams
+Meal 8 Time: 1227 minutes, Carb Amount: 58.4 grams
+Meal 9 Time: 1291 minutes, Carb Amount: 121.72 grams
+Meal 10 Time: 1399 minutes, Carb Amount: 145.15 grams
+
+Exercise Sessions:
+Exercise 1: Start = 88 minutes, Duration = 60 minutes
+Exercise 2: Start = 184 minutes, Duration = 22 minutes
+Exercise 3: Start = 247 minutes, Duration = 44 minutes
+Exercise 4: Start = 403 minutes, Duration = 28 minutes
+
+
+Test Case [77]
+Body Weight: 54.59 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 3
+Meal 1 Time: 95 minutes, Carb Amount: 152.37 grams
+Meal 2 Time: 237 minutes, Carb Amount: 183.19 grams
+Meal 3 Time: 430 minutes, Carb Amount: 122.73 grams
+
+Exercise Sessions:
+Exercise 1: Start = 62 minutes, Duration = 37 minutes
+Exercise 2: Start = 207 minutes, Duration = 16 minutes
+Exercise 3: Start = 330 minutes, Duration = 46 minutes
+Exercise 4: Start = 451 minutes, Duration = 46 minutes
+Exercise 5: Start = 560 minutes, Duration = 28 minutes
+
+
+Test Case [78]
+Body Weight: 169.69 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 6
+Meal 1 Time: 148 minutes, Carb Amount: 81.15 grams
+Meal 2 Time: 245 minutes, Carb Amount: 49.21 grams
+Meal 3 Time: 482 minutes, Carb Amount: 150.59 grams
+Meal 4 Time: 706 minutes, Carb Amount: 90.2 grams
+Meal 5 Time: 869 minutes, Carb Amount: 124.19 grams
+Meal 6 Time: 1084 minutes, Carb Amount: 51.55 grams
+
+Exercise Sessions:
+Exercise 1: Start = 36 minutes, Duration = 51 minutes
+Exercise 2: Start = 182 minutes, Duration = 37 minutes
+Exercise 3: Start = 283 minutes, Duration = 54 minutes
+Exercise 4: Start = 433 minutes, Duration = 48 minutes
+
+
+Test Case [79]
+Body Weight: 16.13 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 5
+Meal 1 Time: 205 minutes, Carb Amount: 122.99 grams
+Meal 2 Time: 284 minutes, Carb Amount: 95.24 grams
+Meal 3 Time: 420 minutes, Carb Amount: 72.4 grams
+Meal 4 Time: 644 minutes, Carb Amount: 1.14 grams
+Meal 5 Time: 774 minutes, Carb Amount: 50.02 grams
+
+Exercise Sessions:
+Exercise 1: Start = 72 minutes, Duration = 44 minutes
+Exercise 2: Start = 222 minutes, Duration = 38 minutes
+Exercise 3: Start = 339 minutes, Duration = 23 minutes
+Exercise 4: Start = 451 minutes, Duration = 30 minutes
+Exercise 5: Start = 524 minutes, Duration = 29 minutes
+
+
+Test Case [80]
+Body Weight: 141.61 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 1
+Meal 1 Time: 101 minutes, Carb Amount: 66.1 grams
+
+Exercise Sessions:
+Exercise 1: Start = 53 minutes, Duration = 60 minutes
+
+
+Test Case [81]
+Body Weight: 89.6 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 7
+Meal 1 Time: 67 minutes, Carb Amount: 29.93 grams
+Meal 2 Time: 149 minutes, Carb Amount: 12.39 grams
+Meal 3 Time: 278 minutes, Carb Amount: 104.98 grams
+Meal 4 Time: 365 minutes, Carb Amount: 96.41 grams
+Meal 5 Time: 559 minutes, Carb Amount: 190.54 grams
+Meal 6 Time: 657 minutes, Carb Amount: 48.58 grams
+Meal 7 Time: 875 minutes, Carb Amount: 199.01 grams
+
+Exercise Sessions:
+Exercise 1: Start = 73 minutes, Duration = 19 minutes
+
+
+Test Case [82]
+Body Weight: 35.15 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 3
+Meal 1 Time: 77 minutes, Carb Amount: 192.44 grams
+Meal 2 Time: 208 minutes, Carb Amount: 174.95 grams
+Meal 3 Time: 307 minutes, Carb Amount: 156.53 grams
+
+Exercise Sessions:
+Exercise 1: Start = 96 minutes, Duration = 48 minutes
+Exercise 2: Start = 264 minutes, Duration = 51 minutes
+Exercise 3: Start = 389 minutes, Duration = 19 minutes
+
+
+Test Case [83]
+Body Weight: 165.02 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 10
+Meal 1 Time: 196 minutes, Carb Amount: 193.81 grams
+Meal 2 Time: 374 minutes, Carb Amount: 189.09 grams
+Meal 3 Time: 471 minutes, Carb Amount: 50.05 grams
+Meal 4 Time: 571 minutes, Carb Amount: 139.18 grams
+Meal 5 Time: 748 minutes, Carb Amount: 137.95 grams
+Meal 6 Time: 988 minutes, Carb Amount: 181.95 grams
+Meal 7 Time: 1140 minutes, Carb Amount: 18.18 grams
+Meal 8 Time: 1267 minutes, Carb Amount: 110.24 grams
+
+Exercise Sessions:
+Exercise 1: Start = 81 minutes, Duration = 44 minutes
+Exercise 2: Start = 157 minutes, Duration = 56 minutes
+Exercise 3: Start = 245 minutes, Duration = 25 minutes
+Exercise 4: Start = 385 minutes, Duration = 22 minutes
+Exercise 5: Start = 486 minutes, Duration = 51 minutes
+
+
+Test Case [84]
+Body Weight: 178.13 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 4
+Meal 1 Time: 236 minutes, Carb Amount: 132.01 grams
+Meal 2 Time: 412 minutes, Carb Amount: 166.0 grams
+Meal 3 Time: 603 minutes, Carb Amount: 1.41 grams
+Meal 4 Time: 839 minutes, Carb Amount: 40.56 grams
+
+Exercise Sessions:
+
+
+Test Case [85]
+Body Weight: 88.98 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 9
+Meal 1 Time: 179 minutes, Carb Amount: 37.1 grams
+Meal 2 Time: 250 minutes, Carb Amount: 171.85 grams
+Meal 3 Time: 439 minutes, Carb Amount: 8.21 grams
+Meal 4 Time: 634 minutes, Carb Amount: 161.0 grams
+Meal 5 Time: 803 minutes, Carb Amount: 65.45 grams
+Meal 6 Time: 874 minutes, Carb Amount: 118.89 grams
+Meal 7 Time: 1010 minutes, Carb Amount: 192.76 grams
+Meal 8 Time: 1202 minutes, Carb Amount: 151.61 grams
+
+Exercise Sessions:
+Exercise 1: Start = 49 minutes, Duration = 51 minutes
+Exercise 2: Start = 154 minutes, Duration = 55 minutes
+Exercise 3: Start = 296 minutes, Duration = 19 minutes
+
+
+Test Case [86]
+Body Weight: 197.18 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 9
+Meal 1 Time: 203 minutes, Carb Amount: 96.22 grams
+Meal 2 Time: 349 minutes, Carb Amount: 164.12 grams
+Meal 3 Time: 428 minutes, Carb Amount: 29.68 grams
+Meal 4 Time: 656 minutes, Carb Amount: 18.46 grams
+Meal 5 Time: 858 minutes, Carb Amount: 96.4 grams
+Meal 6 Time: 1081 minutes, Carb Amount: 96.68 grams
+Meal 7 Time: 1164 minutes, Carb Amount: 143.77 grams
+Meal 8 Time: 1323 minutes, Carb Amount: 193.37 grams
+
+Exercise Sessions:
+Exercise 1: Start = 67 minutes, Duration = 31 minutes
+
+
+Test Case [87]
+Body Weight: 74.52 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 5
+Meal 1 Time: 78 minutes, Carb Amount: 62.43 grams
+Meal 2 Time: 309 minutes, Carb Amount: 2.67 grams
+Meal 3 Time: 448 minutes, Carb Amount: 95.88 grams
+Meal 4 Time: 587 minutes, Carb Amount: 92.52 grams
+Meal 5 Time: 675 minutes, Carb Amount: 150.07 grams
+
+Exercise Sessions:
+Exercise 1: Start = 111 minutes, Duration = 19 minutes
+Exercise 2: Start = 167 minutes, Duration = 21 minutes
+Exercise 3: Start = 285 minutes, Duration = 41 minutes
+Exercise 4: Start = 383 minutes, Duration = 59 minutes
+
+
+Test Case [88]
+Body Weight: 75.68 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 7
+Meal 1 Time: 232 minutes, Carb Amount: 80.34 grams
+Meal 2 Time: 325 minutes, Carb Amount: 138.1 grams
+Meal 3 Time: 523 minutes, Carb Amount: 99.23 grams
+Meal 4 Time: 601 minutes, Carb Amount: 144.44 grams
+Meal 5 Time: 707 minutes, Carb Amount: 127.01 grams
+Meal 6 Time: 811 minutes, Carb Amount: 38.88 grams
+Meal 7 Time: 901 minutes, Carb Amount: 12.36 grams
+
+Exercise Sessions:
+Exercise 1: Start = 108 minutes, Duration = 22 minutes
+Exercise 2: Start = 168 minutes, Duration = 24 minutes
+Exercise 3: Start = 258 minutes, Duration = 20 minutes
+Exercise 4: Start = 387 minutes, Duration = 52 minutes
+
+
+Test Case [89]
+Body Weight: 6.48 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 0
+
+Exercise Sessions:
+Exercise 1: Start = 105 minutes, Duration = 43 minutes
+
+
+Test Case [90]
+Body Weight: 147.05 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 9
+Meal 1 Time: 193 minutes, Carb Amount: 172.8 grams
+Meal 2 Time: 359 minutes, Carb Amount: 127.67 grams
+Meal 3 Time: 578 minutes, Carb Amount: 192.0 grams
+Meal 4 Time: 787 minutes, Carb Amount: 54.86 grams
+Meal 5 Time: 866 minutes, Carb Amount: 41.13 grams
+Meal 6 Time: 1016 minutes, Carb Amount: 10.24 grams
+Meal 7 Time: 1182 minutes, Carb Amount: 73.19 grams
+Meal 8 Time: 1336 minutes, Carb Amount: 114.09 grams
+
+Exercise Sessions:
+Exercise 1: Start = 106 minutes, Duration = 15 minutes
+Exercise 2: Start = 178 minutes, Duration = 18 minutes
+Exercise 3: Start = 262 minutes, Duration = 32 minutes
+Exercise 4: Start = 326 minutes, Duration = 50 minutes
+
+
+Test Case [91]
+Body Weight: 115.47 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 1
+Meal 1 Time: 65 minutes, Carb Amount: 36.66 grams
+
+Exercise Sessions:
+Exercise 1: Start = 73 minutes, Duration = 52 minutes
+Exercise 2: Start = 184 minutes, Duration = 46 minutes
+Exercise 3: Start = 273 minutes, Duration = 58 minutes
+Exercise 4: Start = 428 minutes, Duration = 18 minutes
+
+
+Test Case [92]
+Body Weight: 154.73 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 1
+Meal 1 Time: 220 minutes, Carb Amount: 35.96 grams
+
+Exercise Sessions:
+Exercise 1: Start = 53 minutes, Duration = 41 minutes
+Exercise 2: Start = 211 minutes, Duration = 26 minutes
+Exercise 3: Start = 324 minutes, Duration = 46 minutes
+Exercise 4: Start = 466 minutes, Duration = 22 minutes
+Exercise 5: Start = 575 minutes, Duration = 49 minutes
+
+
+Test Case [93]
+Body Weight: 136.53 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 9
+Meal 1 Time: 78 minutes, Carb Amount: 1.66 grams
+Meal 2 Time: 308 minutes, Carb Amount: 75.56 grams
+Meal 3 Time: 401 minutes, Carb Amount: 99.89 grams
+Meal 4 Time: 566 minutes, Carb Amount: 28.6 grams
+Meal 5 Time: 697 minutes, Carb Amount: 30.65 grams
+Meal 6 Time: 852 minutes, Carb Amount: 12.52 grams
+Meal 7 Time: 968 minutes, Carb Amount: 78.2 grams
+Meal 8 Time: 1144 minutes, Carb Amount: 189.22 grams
+Meal 9 Time: 1373 minutes, Carb Amount: 61.84 grams
+
+Exercise Sessions:
+Exercise 1: Start = 60 minutes, Duration = 41 minutes
+
+
+Test Case [94]
+Body Weight: 174.48 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 10
+Meal 1 Time: 69 minutes, Carb Amount: 136.95 grams
+Meal 2 Time: 154 minutes, Carb Amount: 155.02 grams
+Meal 3 Time: 360 minutes, Carb Amount: 16.78 grams
+Meal 4 Time: 580 minutes, Carb Amount: 164.21 grams
+Meal 5 Time: 675 minutes, Carb Amount: 132.73 grams
+Meal 6 Time: 893 minutes, Carb Amount: 150.78 grams
+Meal 7 Time: 1043 minutes, Carb Amount: 129.54 grams
+Meal 8 Time: 1242 minutes, Carb Amount: 83.94 grams
+
+Exercise Sessions:
+Exercise 1: Start = 116 minutes, Duration = 48 minutes
+
+
+Test Case [95]
+Body Weight: 181.09 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 3
+Meal 1 Time: 134 minutes, Carb Amount: 71.51 grams
+Meal 2 Time: 255 minutes, Carb Amount: 94.15 grams
+Meal 3 Time: 481 minutes, Carb Amount: 113.98 grams
+
+Exercise Sessions:
+Exercise 1: Start = 32 minutes, Duration = 59 minutes
+Exercise 2: Start = 151 minutes, Duration = 57 minutes
+Exercise 3: Start = 242 minutes, Duration = 55 minutes
+Exercise 4: Start = 390 minutes, Duration = 59 minutes
+Exercise 5: Start = 532 minutes, Duration = 47 minutes
+
+
+Test Case [96]
+Body Weight: 151.36 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 1
+Meal 1 Time: 239 minutes, Carb Amount: 190.42 grams
+
+Exercise Sessions:
+Exercise 1: Start = 70 minutes, Duration = 16 minutes
+
+
+Test Case [97]
+Body Weight: 87.93 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 9
+Meal 1 Time: 201 minutes, Carb Amount: 7.14 grams
+Meal 2 Time: 408 minutes, Carb Amount: 166.11 grams
+Meal 3 Time: 614 minutes, Carb Amount: 192.25 grams
+Meal 4 Time: 795 minutes, Carb Amount: 107.91 grams
+Meal 5 Time: 874 minutes, Carb Amount: 76.62 grams
+Meal 6 Time: 959 minutes, Carb Amount: 198.93 grams
+Meal 7 Time: 1076 minutes, Carb Amount: 151.85 grams
+Meal 8 Time: 1185 minutes, Carb Amount: 183.53 grams
+Meal 9 Time: 1357 minutes, Carb Amount: 118.52 grams
+
+Exercise Sessions:
+Exercise 1: Start = 32 minutes, Duration = 48 minutes
+Exercise 2: Start = 122 minutes, Duration = 47 minutes
+Exercise 3: Start = 284 minutes, Duration = 28 minutes
+Exercise 4: Start = 364 minutes, Duration = 21 minutes
+
+
+Test Case [98]
+Body Weight: 102.17 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 10
+Meal 1 Time: 158 minutes, Carb Amount: 11.82 grams
+Meal 2 Time: 308 minutes, Carb Amount: 111.7 grams
+Meal 3 Time: 525 minutes, Carb Amount: 170.28 grams
+Meal 4 Time: 742 minutes, Carb Amount: 58.18 grams
+Meal 5 Time: 928 minutes, Carb Amount: 157.25 grams
+Meal 6 Time: 1066 minutes, Carb Amount: 114.39 grams
+Meal 7 Time: 1261 minutes, Carb Amount: 194.53 grams
+
+Exercise Sessions:
+
+
+Test Case [99]
+Body Weight: 139.52 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 7
+Meal 1 Time: 230 minutes, Carb Amount: 47.54 grams
+Meal 2 Time: 376 minutes, Carb Amount: 182.48 grams
+Meal 3 Time: 594 minutes, Carb Amount: 79.43 grams
+Meal 4 Time: 662 minutes, Carb Amount: 191.37 grams
+Meal 5 Time: 890 minutes, Carb Amount: 150.33 grams
+Meal 6 Time: 1055 minutes, Carb Amount: 28.89 grams
+Meal 7 Time: 1274 minutes, Carb Amount: 187.07 grams
+
+Exercise Sessions:
+Exercise 1: Start = 65 minutes, Duration = 51 minutes
+Exercise 2: Start = 173 minutes, Duration = 27 minutes
+Exercise 3: Start = 286 minutes, Duration = 46 minutes
+
+
+Test Case [100]
+Body Weight: 55.26 kg
+Simulation Time: 1440 minutes
+
+Meal Count: 2
+Meal 1 Time: 120 minutes, Carb Amount: 142.26 grams
+Meal 2 Time: 256 minutes, Carb Amount: 41.7 grams
+
+Exercise Sessions:
+Exercise 1: Start = 89 minutes, Duration = 16 minutes
+Exercise 2: Start = 182 minutes, Duration = 40 minutes
+Exercise 3: Start = 296 minutes, Duration = 52 minutes
+
+

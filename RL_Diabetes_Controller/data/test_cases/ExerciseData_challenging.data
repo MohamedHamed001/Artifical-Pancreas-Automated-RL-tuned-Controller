@@ -1,0 +1,15 @@
+# Time(min) Active(0/1)
+# Challenging exercise scenario for diabetes control testing
+# Exercise sessions at different times
+
+# Morning exercise - 6:30 AM (390 min) - 45 minutes
+390 1
+435 0
+
+# Afternoon exercise - 3:00 PM (900 min) - 60 minutes  
+900 1
+960 0
+
+# Evening walk - 8:30 PM (1230 min) - 30 minutes
+1230 1
+1260 0 

@@ -1,0 +1,8 @@
+Body Weight: 75.0 kg
+
+Meal 1 Time: 120 min, Carbs: 45.0 g
+Meal 2 Time: 480 min, Carbs: 60.0 g  
+Meal 3 Time: 720 min, Carbs: 55.0 g
+
+Exercise 1 Time: 300 min, Duration: 30 min, Intensity: 0.7
+Exercise 2 Time: 1080 min, Duration: 45 min, Intensity: 0.6 

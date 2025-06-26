@@ -1,0 +1,27 @@
+# Time(min) Carbs(g)
+# Challenging meal scenario for diabetes control testing
+# Multiple meals throughout the day with varying carb loads
+
+# Breakfast - 8:00 AM (480 min)
+480 80
+481 0
+
+# Mid-morning snack - 10:30 AM (630 min)  
+630 20
+631 0
+
+# Lunch - 1:00 PM (780 min)
+780 60
+781 0
+
+# Afternoon snack - 4:00 PM (960 min)
+960 30
+961 0
+
+# Dinner - 7:00 PM (1140 min)
+1140 90
+1141 0
+
+# Late evening snack - 10:00 PM (1320 min)
+1320 25
+1321 0 
