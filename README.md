@@ -2,7 +2,7 @@
 
 A comprehensive Type 1 Diabetes management system that combines Reinforcement Learning (RL) with PID control to create an intelligent artificial pancreas. The system uses the Hovorka patient model to simulate realistic glucose-insulin dynamics and employs A2C (Advantage Actor-Critic) algorithms to automatically tune PID parameters for optimal glucose control.
 
-![Controller Results](RL_Diabetes_Controller/A2C/save_weights/training_progress.png)
+![Controller Results](check.patientModel_RL.png)
 
 ## 🎯 Project Overview
 
