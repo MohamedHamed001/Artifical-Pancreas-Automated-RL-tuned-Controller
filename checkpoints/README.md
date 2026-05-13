@@ -1,6 +1,6 @@
 # Checkpoints
 
-`.h5` model weights live here at runtime and are **gitignored** (see
+``.weights.h5`` model weights live here at runtime and are **gitignored** (see
 the repo-level `.gitignore`).
 
 ## Get the latest weights
@@ -14,8 +14,12 @@ ap-rl-download
 
 The script downloads:
 
-* `diabetes_actor_best.h5`
-* `diabetes_critic_best.h5`
+* `diabetes_actor_best.weights.h5`
+* `diabetes_critic_best.weights.h5`
+
+Legacy ``*.h5`` names are still accepted when loading or when downloading
+from an older GitHub Release (the downloader maps them to ``*.weights.h5``
+on disk).
 
 Use `--force` to re-download or `--file NAME` to fetch additional files
 (e.g. older episode checkpoints) when present in the Release.

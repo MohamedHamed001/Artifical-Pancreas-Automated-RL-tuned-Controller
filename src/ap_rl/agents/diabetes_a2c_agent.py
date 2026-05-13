@@ -17,6 +17,7 @@ import numpy as np
 
 from ap_rl.agents.diabetes_a2c_actor import DiabetesActor
 from ap_rl.agents.diabetes_a2c_critic import DiabetesCritic
+from ap_rl.utils.checkpoint_filenames import actor_critic_paths
 from ap_rl.utils.paths import checkpoints_dir
 
 
@@ -212,17 +213,22 @@ class DiabetesA2CAgent:
         return test_rewards, test_stats
 
     def save_weights(self, name: str) -> None:
-        actor_path = os.path.join(self.save_dir, f"diabetes_actor_{name}.h5")
-        critic_path = os.path.join(self.save_dir, f"diabetes_critic_{name}.h5")
+        actor_path, critic_path = actor_critic_paths(self.save_dir, name)
         self.actor.save_weights(actor_path)
         self.critic.save_weights(critic_path)
 
     def load_weights(self, name: str) -> bool:
         """Load actor + critic weights. Returns False when missing."""
-        actor_path = os.path.join(self.save_dir, f"diabetes_actor_{name}.h5")
-        critic_path = os.path.join(self.save_dir, f"diabetes_critic_{name}.h5")
+        actor_path, critic_path = actor_critic_paths(self.save_dir, name)
         if os.path.exists(actor_path) and os.path.exists(critic_path):
             self.actor.load_weights(actor_path)
             self.critic.load_weights(critic_path)
+            return True
+        # Legacy filenames (Keras <3 style)
+        legacy_actor = os.path.join(self.save_dir, f"diabetes_actor_{name}.h5")
+        legacy_critic = os.path.join(self.save_dir, f"diabetes_critic_{name}.h5")
+        if os.path.exists(legacy_actor) and os.path.exists(legacy_critic):
+            self.actor.load_weights(legacy_actor)
+            self.critic.load_weights(legacy_critic)
             return True
         return False

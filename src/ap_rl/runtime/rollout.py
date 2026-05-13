@@ -13,7 +13,9 @@ from typing import Optional
 
 import numpy as np
 
+from ap_rl.agents.diabetes_a2c_actor import DiabetesActor
 from ap_rl.envs import DiabetesPIDEnv
+from ap_rl.utils.checkpoint_filenames import ACTOR_BEST, actor_load_candidates
 from ap_rl.utils.paths import checkpoints_dir
 
 
@@ -55,7 +57,7 @@ def load_actor_from_checkpoints(
     state_dim: int = 13,
     action_dim: int = 3,
     action_bound: float = 0.1,
-    actor_filename: str = "diabetes_actor_best.h5",
+    actor_filename: str = ACTOR_BEST,
     checkpoints_path: Optional[str | os.PathLike] = None,
 ):
     """Try to load the actor network from ``checkpoints/``.
@@ -67,19 +69,18 @@ def load_actor_from_checkpoints(
     ckpt_dir = (
         os.fspath(checkpoints_path) if checkpoints_path is not None else os.fspath(checkpoints_dir())
     )
-    actor_path = os.path.join(ckpt_dir, actor_filename)
-    if not os.path.exists(actor_path):
-        return None
-    from ap_rl.agents.diabetes_a2c_actor import DiabetesActor
-
-    actor = DiabetesActor(
-        state_dim=state_dim,
-        action_dim=action_dim,
-        action_bound=action_bound,
-        learning_rate=1e-4,
-    )
-    actor.load_weights(actor_path)
-    return actor
+    for actor_path in actor_load_candidates(actor_filename, ckpt_dir):
+        if not os.path.exists(actor_path):
+            continue
+        actor = DiabetesActor(
+            state_dim=state_dim,
+            action_dim=action_dim,
+            action_bound=action_bound,
+            learning_rate=1e-4,
+        )
+        actor.load_weights(actor_path)
+        return actor
+    return None
 
 
 def run_episode(

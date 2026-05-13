@@ -10,10 +10,10 @@ Or directly::
     python -m ap_rl.scripts.download_checkpoints
 
 Notes:
-    The base URL must serve ``diabetes_actor_best.h5`` and
-    ``diabetes_critic_best.h5`` at the top level. For a GitHub Release
-    this typically looks like
-    ``https://github.com/<org>/<repo>/releases/download/<tag>``.
+    Local files use the ``*.weights.h5`` suffix required by Keras 3
+    ``Model.save_weights``. If a release only hosts legacy ``*.h5``
+    assets, this script tries those URLs and still saves under the
+    modern filenames.
 """
 
 from __future__ import annotations
@@ -24,10 +24,8 @@ import sys
 from pathlib import Path
 from typing import Iterable, Optional
 
+from ap_rl.utils.checkpoint_filenames import DEFAULT_BUNDLE, remote_urls_for_file
 from ap_rl.utils.paths import checkpoints_dir
-
-
-DEFAULT_FILES = ("diabetes_actor_best.h5", "diabetes_critic_best.h5")
 
 # Placeholder; users override via env or --base-url.
 PLACEHOLDER_URL = (
@@ -49,25 +47,39 @@ def _resolve_base_url(cli_value: Optional[str]) -> str:
     )
 
 
-def _download_file(url: str, dest: Path, chunk_size: int = 1 << 16) -> None:
+def _download_one_with_fallbacks(base: str, local_filename: str, dest: Path) -> None:
+    """Stream ``local_filename`` from ``base`` into ``dest`` (try legacy ``.h5``)."""
     import requests
 
-    dest.parent.mkdir(parents=True, exist_ok=True)
-    with requests.get(url, stream=True, timeout=60) as response:
-        if response.status_code != 200:
-            raise SystemExit(
-                f"ERROR: download failed for {url} (HTTP {response.status_code})"
-            )
-        with dest.open("wb") as f:
-            for chunk in response.iter_content(chunk_size=chunk_size):
-                if chunk:
-                    f.write(chunk)
-    print(f"  ✓ saved {dest.name} ({dest.stat().st_size / 1024:.1f} KiB)")
+    errors: list[str] = []
+    for url in remote_urls_for_file(base, local_filename):
+        try:
+            with requests.get(url, stream=True, timeout=60) as response:
+                if response.status_code != 200:
+                    errors.append(f"{url} (HTTP {response.status_code})")
+                    continue
+                dest.parent.mkdir(parents=True, exist_ok=True)
+                with dest.open("wb") as f:
+                    for chunk in response.iter_content(chunk_size=1 << 16):
+                        if chunk:
+                            f.write(chunk)
+            print(f"  ✓ saved {dest.name} ({dest.stat().st_size / 1024:.1f} KiB) ← {url}")
+            return
+        except OSError as exc:
+            errors.append(f"{url} ({exc})")
+        except Exception as exc:  # pragma: no cover - requests errors
+            errors.append(f"{url} ({exc})")
+    raise RuntimeError(
+        "could not download "
+        + local_filename
+        + " — tried:\n  - "
+        + "\n  - ".join(errors)
+    )
 
 
 def download(
     base_url: Optional[str] = None,
-    files: Iterable[str] = DEFAULT_FILES,
+    files: Iterable[str] = DEFAULT_BUNDLE,
     dest_dir: Optional[Path] = None,
     force: bool = False,
 ) -> int:
@@ -86,9 +98,11 @@ def download(
         if dest.exists() and not force:
             print(f"  - {filename} already exists, skipping (use --force to overwrite)")
             continue
-        url = f"{base}/{filename}"
         try:
-            _download_file(url, dest)
+            _download_one_with_fallbacks(base, filename, dest)
+        except RuntimeError as exc:
+            print(f"ERROR: {exc}", file=sys.stderr)
+            return 1
         except Exception as exc:  # pragma: no cover - network errors
             print(f"  ! failed to download {filename}: {exc}", file=sys.stderr)
             return 1
@@ -98,12 +112,12 @@ def download(
 
 def main(argv: Optional[list[str]] = None) -> int:
     parser = argparse.ArgumentParser(
-        description="Download A2C actor/critic .h5 weights into checkpoints/.",
+        description="Download A2C actor/critic weights (*.weights.h5) into checkpoints/.",
     )
     parser.add_argument(
         "--base-url",
         help=(
-            "Base URL hosting the .h5 files. Defaults to the AP_RL_CHECKPOINT_URL "
+            "Base URL hosting the weight files. Defaults to the AP_RL_CHECKPOINT_URL "
             "environment variable."
         ),
     )
@@ -126,7 +140,7 @@ def main(argv: Optional[list[str]] = None) -> int:
     )
     args = parser.parse_args(argv)
 
-    files = tuple(args.files) if args.files else DEFAULT_FILES
+    files = tuple(args.files) if args.files else DEFAULT_BUNDLE
     return download(
         base_url=args.base_url,
         files=files,

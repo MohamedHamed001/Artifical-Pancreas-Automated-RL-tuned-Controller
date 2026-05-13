@@ -177,8 +177,10 @@ ap-rl-train --preset conservative
 ```
 
 Weights are written to `<repo>/checkpoints/` as
-`diabetes_actor_<name>.h5` / `diabetes_critic_<name>.h5`. The best
-episode is saved as `diabetes_actor_best.h5` automatically.
+`diabetes_actor_<name>.weights.h5` / `diabetes_critic_<name>.weights.h5`
+(Keras 3 ``save_weights`` format). The best episode is saved as
+`diabetes_actor_best.weights.h5` automatically. Legacy ``*.h5`` files
+from older runs are still loaded when present.
 
 ## Synthetic patient profiles
 

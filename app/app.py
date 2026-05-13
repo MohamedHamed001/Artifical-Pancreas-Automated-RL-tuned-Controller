@@ -41,7 +41,8 @@ from ap_rl.runtime.rollout import (
     run_episode,
 )
 from ap_rl.utils.config import load_yaml
-from ap_rl.utils.paths import configs_dir
+from ap_rl.utils.checkpoint_filenames import ACTOR_BEST
+from ap_rl.utils.paths import checkpoints_dir, configs_dir
 from ap_rl.utils.seed import set_global_seed
 
 
@@ -353,17 +354,17 @@ def run_demo_episode(
     controller: str,
     horizon: int,
     seed: Optional[int],
-) -> EpisodeRecord:
+) -> Optional[EpisodeRecord]:
+    """Run one episode. For ``controller=='rl'``, returns ``None`` if no
+    actor weights are present so the UI does not mislabel a baseline run
+    as RL.
+    """
     env = _build_env(profile, meals, exercise, seed)
     actor = None
     if controller == "rl":
         actor = _load_actor_cached()
         if actor is None:
-            st.warning(
-                "No checkpoints found in checkpoints/. Falling back to baseline PID. "
-                "Run `python scripts/download_checkpoints.py` to fetch them."
-            )
-            controller = "baseline"
+            return None
     record = run_episode(
         env,
         controller=controller,
@@ -524,6 +525,26 @@ def main() -> None:
     progress.progress(1.0, text="Rendering charts...")
     progress.empty()
 
+    # RL status (avoid implying RL ran when weights are missing) ------------
+    ckpt_dir = checkpoints_dir()
+    actor_path = ckpt_dir / ACTOR_BEST
+    if compare_mode:
+        if rl_record is not None and rl_record.controller == "rl":
+            st.success(
+                f"RL controller active — loaded `{actor_path.name}` from `{ckpt_dir}`."
+            )
+        else:
+            st.error(
+                "**RL comparison unavailable.** No trained actor at "
+                f"`{actor_path}` (or legacy `diabetes_actor_best.h5` beside it). "
+                "Baseline PID below is still valid; RL curves are not.\n\n"
+                "**Next steps:** (1) `ap-rl-train --preset default` until "
+                "`diabetes_actor_best.weights.h5` appears in `checkpoints/`, **or** (2) set "
+                "`AP_RL_CHECKPOINT_URL` to your **real** release URL (not the README "
+                "placeholder) and run `ap-rl-download`. After adding files manually, "
+                "use the Streamlit menu **Clear cache** then **Rerun** so the actor reloads."
+            )
+
     # Headline metrics ---------------------------------------------------------
     primary_record = rl_record if (rl_record and rl_record.controller == "rl") else baseline_record
     stats = primary_record.stats or {}
@@ -596,7 +617,7 @@ def main() -> None:
         st.bar_chart(pd.DataFrame({"%": dist}))
         st.caption("Per-minute classification across the simulated day.")
 
-        if compare_mode and rl_record is not None:
+        if compare_mode and rl_record is not None and rl_record.controller == "rl":
             st.subheader("Controller comparison")
             cmp_df = pd.DataFrame(
                 {
@@ -618,17 +639,15 @@ def main() -> None:
         ).set_index("Time (min)")
         st.line_chart(gains)
 
-    if rl_record is None:
-        if compare_mode:
-            st.info(
-                "RL trajectory unavailable (rollout error above, or compare mode could not "
-                "produce an RL curve). Baseline PID results are still shown."
-            )
-        else:
-            st.info(
-                "Compare mode is off. Enable the toggle and download checkpoints to overlay "
-                "an RL-tuned trajectory."
-            )
+    if rl_record is None and compare_mode:
+        st.caption(
+            "No RL trajectory to plot — see the red **RL comparison unavailable** banner above."
+        )
+    elif rl_record is None and not compare_mode:
+        st.info(
+            "Compare mode is off. Enable the toggle and install checkpoints to overlay "
+            "an RL-tuned trajectory."
+        )
 
     st.markdown(
         "---\n"
