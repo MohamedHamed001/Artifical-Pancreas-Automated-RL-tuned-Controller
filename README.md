@@ -62,11 +62,14 @@ flowchart LR
 
 ## Quick start
 
+Use **Python 3.9–3.12** for `pip install -e .` (TensorFlow does not yet support
+Python 3.13 for training/inference wheels on all platforms).
+
 ```bash
 # 1. Clone + install (editable)
 git clone https://github.com/<your-org>/Artifical-Pancreas-Automated-RL-tuned-Controller.git
 cd Artifical-Pancreas-Automated-RL-tuned-Controller
-python -m venv .venv && source .venv/bin/activate
+python3.11 -m venv .venv && source .venv/bin/activate   # or python3.10 / 3.12
 pip install -e ".[demo,dev]"
 
 # 2. (Optional) download trained A2C checkpoints
@@ -75,6 +78,7 @@ ap-rl-download             # or: python scripts/download_checkpoints.py
 
 # 3. Launch the digital-twin demo
 streamlit run app/app.py
+# or: python demo.py
 
 # 4. (Optional) train your own weights
 ap-rl-train --preset default --seed 42
@@ -93,6 +97,7 @@ PYTHONPATH=src streamlit run app/app.py
 ```
 .
 ├── app/app.py                 # Streamlit digital-twin demo
+├── demo.py                    # optional: python demo.py → streamlit run app/app.py
 ├── configs/
 │   ├── patient_default.yaml   # canonical Hovorka parameter dict
 │   ├── demo.yaml              # Streamlit defaults
@@ -114,7 +119,9 @@ PYTHONPATH=src streamlit run app/app.py
 │   └── scripts/               # CLI entry points (ap-rl-download, ap-rl-train)
 ├── docs/
 │   ├── legacy/                # archived artificial_pancreas_simulator.py
+│   ├── legacy-pid-tuner.md    # pointer to archived LunarLander PID tuner
 │   └── legacy-pid-tuner/      # archived upstream LunarLander PID tuner
+├── notebooks/                 # exploratory notebooks (see notebooks/README.md)
 └── tests/                     # pytest suite (env, utils, viz, downloader)
 ```
 
@@ -223,4 +230,4 @@ should be used to make actual diabetes-management decisions.
 
 ## License
 
-MIT — see `LICENSE` (TODO: add).
+MIT — see [`LICENSE`](LICENSE).

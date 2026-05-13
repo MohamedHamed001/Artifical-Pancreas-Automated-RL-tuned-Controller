@@ -1,12 +1,12 @@
 # Runtime requirements for ap-rl (Artificial Pancreas RL-tuned controller).
-# Pinned as ranges compatible with TF 2.10–2.15 on macOS / Linux.
+# TensorFlow: use 2.10+ wheels available for your Python (3.9–3.12 recommended).
 
 numpy>=1.21
 scipy>=1.7
 pandas>=1.3
 matplotlib>=3.5
 pyyaml>=6.0
-tensorflow>=2.10,<2.16
+tensorflow>=2.10
 requests>=2.28
 
 # Optional demo extras (Streamlit + Plotly)
