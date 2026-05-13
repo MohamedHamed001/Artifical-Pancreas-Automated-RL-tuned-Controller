@@ -1,0 +1,17 @@
+# Synthetic profile: hard-to-control simulant.
+# Adds observation noise rather than corrupting the ODE state, matching
+# the "sensor noise" sensitivity story documented in the README.
+display_name: Unstable (noisy sensor)
+description: |
+  Synthetic patient with default physiology but a noisier CGM-like
+  observation channel (~5 mg/dL Gaussian noise on the reported BGL).
+  The underlying ODE remains deterministic; only the controller's
+  measurement is perturbed.
+patient_weight: 75
+target_glucose: 120
+patient_params:
+  BW: 75
+  # Slightly elevated EGP swing makes meals feel "spikier".
+  A_EGP: 0.08
+insulin: {}
+observation_noise_std: 5.0

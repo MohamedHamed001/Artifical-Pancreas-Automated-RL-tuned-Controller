@@ -1,0 +1,10 @@
+# Streamlit demo defaults. Override at runtime via the sidebar.
+default_profile: controlled
+default_meal_template: three_meals_active
+default_horizon_min: 1440
+target_band:
+  low: 70
+  high: 180
+display:
+  show_pid_gains: true
+  show_heuristic_prediction: true

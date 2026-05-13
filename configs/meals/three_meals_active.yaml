@@ -1,0 +1,12 @@
+# Deterministic meal + exercise schedule used by the Streamlit demo.
+# Times are in minutes from simulation start (00:00).
+meals:
+  - time: 420   # 07:00 - breakfast
+    carbs: 45
+  - time: 720   # 12:00 - lunch
+    carbs: 60
+  - time: 1080  # 18:00 - dinner
+    carbs: 70
+exercise:
+  - start: 1020  # 17:00 - 30 min activity
+    duration: 30

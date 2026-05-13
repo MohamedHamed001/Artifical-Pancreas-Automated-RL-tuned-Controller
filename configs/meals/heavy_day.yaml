@@ -1,0 +1,12 @@
+meals:
+  - time: 420   # 07:00 - heavy breakfast
+    carbs: 80
+  - time: 690   # 11:30 - mid-morning snack
+    carbs: 25
+  - time: 780   # 13:00 - heavy lunch
+    carbs: 95
+  - time: 1080  # 18:00 - heavy dinner
+    carbs: 110
+exercise:
+  - start: 900   # 15:00 - 45 min activity
+    duration: 45

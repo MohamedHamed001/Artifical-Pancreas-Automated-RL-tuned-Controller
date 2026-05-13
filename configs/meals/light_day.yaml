@@ -1,0 +1,8 @@
+meals:
+  - time: 480   # 08:00 - light breakfast
+    carbs: 30
+  - time: 780   # 13:00 - light lunch
+    carbs: 40
+  - time: 1140  # 19:00 - light dinner
+    carbs: 45
+exercise: []

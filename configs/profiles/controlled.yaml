@@ -1,0 +1,15 @@
+# Synthetic profile: nominal "well-controlled" simulant.
+# Uses Hovorka defaults plus a moderate carb-ratio override.
+display_name: Controlled (baseline)
+description: |
+  Synthetic patient using default Hovorka parameters. Intended as the
+  reference scenario for comparing controllers under nominal
+  conditions.
+patient_weight: 75
+target_glucose: 120
+patient_params:
+  BW: 75
+insulin:
+  carb_ratio: 12.0
+  isf: 36.0
+observation_noise_std: 0.0

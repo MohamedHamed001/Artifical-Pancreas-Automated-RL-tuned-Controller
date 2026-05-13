@@ -1,0 +1,21 @@
+# Synthetic profile: insulin-resistant adult T1D simulant.
+# Educational/research scenario only - not a clinical model.
+display_name: Insulin resistant
+description: |
+  Synthetic adult requiring more insulin per gram of carbs and per
+  mg/dL glucose excursion. Slower insulin action, higher baseline
+  endogenous glucose production, blunted exercise sensitivity rise.
+patient_weight: 95
+target_glucose: 120
+patient_params:
+  BW: 95
+  k_e: 0.115
+  k_b1: 0.0022
+  k_b2: 0.048
+  k_b3: 0.032
+  EGP_0: 0.019
+  F_peak: 1.20
+insulin:
+  carb_ratio: 7.0    # more insulin per gram of carbs
+  isf: 25.0          # less BGL drop per 1 U insulin
+observation_noise_std: 0.0

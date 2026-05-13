@@ -1,0 +1,26 @@
+# Synthetic profile: insulin-sensitive adult T1D simulant.
+# All values are within published Hovorka parameter ranges; descriptions
+# are educational, not clinical claims. This is a demo / research
+# scenario, not a validated patient model.
+display_name: Insulin sensitive
+description: |
+  Synthetic adult who responds quickly and strongly to insulin.
+  Lower TDI and tighter carb-to-insulin ratio; slightly elevated
+  exercise sensitivity peak (F_peak).
+patient_weight: 65
+target_glucose: 120
+patient_params:
+  BW: 65
+  # Faster insulin elimination + stronger insulin action sensitivity
+  k_e: 0.16
+  k_b1: 0.0045
+  k_b2: 0.07
+  k_b3: 0.05
+  # Slightly lower endogenous glucose production baseline
+  EGP_0: 0.014
+  # Pronounced exercise-driven sensitivity rise
+  F_peak: 1.55
+insulin:
+  carb_ratio: 14.0    # g carbs per 1 U insulin (tighter than 500/TDI default)
+  isf: 60.0           # mg/dL drop per 1 U insulin
+observation_noise_std: 0.0
