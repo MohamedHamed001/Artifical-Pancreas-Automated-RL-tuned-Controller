@@ -1,0 +1,63 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Distribution / packaging
+.Python
+build/
+dist/
+*.egg-info/
+*.egg
+pip-wheel-metadata/
+
+# Virtual environments
+.venv/
+venv/
+env/
+.env
+
+# Local environment files (template lives at .env.example)
+.envrc
+
+# IDEs / editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS artifacts
+.DS_Store
+Thumbs.db
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Streamlit cache
+.streamlit/cache/
+.streamlit/secrets.toml
+
+# Model weights & checkpoints (download via scripts/download_checkpoints.py)
+checkpoints/*.h5
+checkpoints/*.weights.h5
+checkpoints/*.keras
+checkpoints/*.ckpt
+checkpoints/*.pt
+
+# Legacy save_weights folders (kept out of git; download from Release)
+**/save_weights/*.h5
+
+# Temporary simulation artifacts
+temp_data/
+*.log
+training_progress.png
+
+# Pytest / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Mypy / type caches
+.mypy_cache/
+.ruff_cache/
