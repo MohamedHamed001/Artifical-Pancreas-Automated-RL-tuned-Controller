@@ -96,6 +96,7 @@ PYTHONPATH=src streamlit run app/app.py
 
 ```
 .
+├── Dockerfile                 # CPU image (Python 3.11) for Streamlit demo
 ├── app/app.py                 # Streamlit digital-twin demo
 ├── demo.py                    # optional: python demo.py → streamlit run app/app.py
 ├── configs/
@@ -105,25 +106,42 @@ PYTHONPATH=src streamlit run app/app.py
 │   └── meals/                 # deterministic meal/exercise templates
 ├── data/
 │   └── test_scenarios/        # 200 MealData/ExerciseData cases + TestCases.txt
+├── docs/
+│   ├── images/                # placeholder for README / portfolio screenshots
+│   ├── legacy/                # archived artificial_pancreas_simulator.py
+│   ├── legacy-pid-tuner.md    # pointer to archived LunarLander PID tuner
+│   └── legacy-pid-tuner/      # archived upstream LunarLander PID tuner
+├── models/                    # optional local weight exports (see models/README.md)
 ├── checkpoints/               # gitignored; downloaded weights land here
 ├── scripts/
 │   ├── download_checkpoints.py
 │   └── smoke_baseline_rollout.py
 ├── src/ap_rl/
-│   ├── envs/                  # HovorkaPatient + DiabetesPIDEnv + scenario builder
+│   ├── envs/                  # HovorkaPatient + DiabetesPIDEnv + scenario builder + optional HovorkaGymEnv
 │   ├── agents/                # A2C actor / critic / agent
+│   ├── evaluation/            # glucose TIR / trajectory metrics (shared with env stats)
 │   ├── utils/                 # PID, insulin math, paths, seed, configs
 │   ├── runtime/               # framework-agnostic run_episode helper
 │   ├── training/              # consolidated train_a2c with --preset CLI
 │   ├── visualization/         # publication-quality matplotlib helpers
 │   └── scripts/               # CLI entry points (ap-rl-download, ap-rl-train)
-├── docs/
-│   ├── legacy/                # archived artificial_pancreas_simulator.py
-│   ├── legacy-pid-tuner.md    # pointer to archived LunarLander PID tuner
-│   └── legacy-pid-tuner/      # archived upstream LunarLander PID tuner
 ├── notebooks/                 # exploratory notebooks (see notebooks/README.md)
 └── tests/                     # pytest suite (env, utils, viz, downloader)
 ```
+
+## Hovorka Gym vs PID-tuning RL
+
+The **primary** API for this repository is :class:`ap_rl.envs.DiabetesPIDEnv`:
+a custom environment used by the TensorFlow A2C trainer where the agent
+outputs PID gain deltas and insulin is computed by the PID stack plus
+meal bolus rules. That path is what the Streamlit demo and
+``ap_rl.training.train_a2c`` exercise end-to-end.
+
+For experiments that prefer a Gymnasium-style loop, there is an
+**optional** wrapper :class:`ap_rl.envs.HovorkaGymEnv` (same underlying
+``DiabetesPIDEnv`` dynamics). It is not required for training or the
+demo. Install Gymnasium with ``pip install -e ".[gym]"`` — see
+``pyproject.toml`` optional dependencies.
 
 ## How RL tunes PID
 
@@ -189,13 +207,19 @@ pytest tests/test_env_step.py -k seed_reproducibility
 
 ### Docker (CPU)
 
-```Dockerfile
-FROM python:3.11-slim
-WORKDIR /app
-COPY . /app
-RUN pip install --no-cache-dir -e ".[demo]"
-EXPOSE 8501
-CMD ["streamlit", "run", "app/app.py", "--server.address=0.0.0.0"]
+Build and run the Streamlit demo from the repository root (see the
+[`Dockerfile`](Dockerfile) and [`.dockerignore`](.dockerignore)):
+
+```bash
+docker build -t ap-rl-demo .
+docker run --rm -p 8501:8501 ap-rl-demo
+# http://localhost:8501
+```
+
+Optional: mount downloaded weights or pass a release URL at runtime:
+
+```bash
+docker run --rm -p 8501:8501 -e AP_RL_CHECKPOINT_URL=https://github.com/org/repo/releases/download/v0.1.0 ap-rl-demo
 ```
 
 ### Hugging Face Spaces

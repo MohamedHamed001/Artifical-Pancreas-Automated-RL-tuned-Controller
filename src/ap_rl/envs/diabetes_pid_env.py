@@ -27,6 +27,7 @@ from typing import Optional
 
 import numpy as np
 
+from ap_rl.evaluation.metrics import glucose_trajectory_summary
 from ap_rl.envs.hovorka_patient import HovorkaPatient
 from ap_rl.utils.insulin_calculator import InsulinCalculator
 from ap_rl.utils.meal_parser import MealParser
@@ -495,31 +496,19 @@ class DiabetesPIDEnv:
         if not self.glucose_history:
             return {}
         glucose_array = np.array(self.glucose_history)
-        return {
-            "mean_glucose": float(np.mean(glucose_array)),
-            "std_glucose": float(np.std(glucose_array)),
-            "time_in_range_80_140": float(
-                np.sum((glucose_array >= 80) & (glucose_array <= 140))
-                / len(glucose_array)
-                * 100
-            ),
-            "time_in_range_70_180": float(
-                np.sum((glucose_array >= 70) & (glucose_array <= 180))
-                / len(glucose_array)
-                * 100
-            ),
-            "time_hypo_70": float(np.sum(glucose_array < 70) / len(glucose_array) * 100),
-            "time_hyper_180": float(
-                np.sum(glucose_array > 180) / len(glucose_array) * 100
-            ),
-            "total_episode_reward": self.total_episode_reward,
-            "mean_insulin": float(np.mean(self.insulin_history)),
-            "total_insulin": float(np.sum(self.insulin_history) / 60),
-            "final_kp": self.pid.Kp,
-            "final_ki": self.pid.Ki,
-            "final_kd": self.pid.Kd,
-            "num_boluses": len(self.bolus_history),
-        }
+        out = glucose_trajectory_summary(glucose_array)
+        out.update(
+            {
+                "total_episode_reward": self.total_episode_reward,
+                "mean_insulin": float(np.mean(self.insulin_history)),
+                "total_insulin": float(np.sum(self.insulin_history) / 60),
+                "final_kp": self.pid.Kp,
+                "final_ki": self.pid.Ki,
+                "final_kd": self.pid.Kd,
+                "num_boluses": len(self.bolus_history),
+            }
+        )
+        return out
 
 
 import atexit

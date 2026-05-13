@@ -29,6 +29,7 @@ import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
+from plotly.subplots import make_subplots
 
 from ap_rl.envs import DiabetesPIDEnv
 from ap_rl.envs.defaults import DEFAULT_PATIENT_PARAMS
@@ -242,6 +243,80 @@ def build_insulin_figure(record: EpisodeRecord, horizon: int) -> go.Figure:
     return fig
 
 
+def build_glucose_insulin_twin_figure(
+    record: EpisodeRecord,
+    target_band: tuple[float, float],
+    *,
+    show_preview: bool,
+    horizon: int,
+) -> go.Figure:
+    """Single Plotly figure: glucose on primary y, total insulin on secondary y."""
+    times = np.asarray(record.times[:horizon])
+    glucose = np.asarray(record.glucose[:horizon])
+    insulin = np.asarray(record.insulin[:horizon])
+
+    fig = make_subplots(specs=[[{"secondary_y": True}]])
+
+    fig.add_hrect(
+        y0=target_band[0],
+        y1=target_band[1],
+        fillcolor="rgba(134, 209, 138, 0.18)",
+        line_width=0,
+        row=1,
+        col=1,
+        secondary_y=False,
+    )
+    fig.add_trace(
+        go.Scatter(
+            x=times,
+            y=glucose,
+            mode="lines",
+            name=f"BGL ({record.controller})",
+            line=dict(color="#1f4ea1", width=2.2),
+        ),
+        secondary_y=False,
+    )
+    fig.add_trace(
+        go.Scatter(
+            x=times,
+            y=insulin,
+            mode="lines",
+            name="Total insulin (U/h)",
+            line=dict(color="#c0392b", width=2),
+        ),
+        secondary_y=True,
+    )
+
+    if show_preview and glucose.size >= 2:
+        future_steps, preview = _heuristic_bg_preview(glucose, horizon_min=30)
+        future_times = times[-1] + future_steps
+        fig.add_trace(
+            go.Scatter(
+                x=future_times,
+                y=preview,
+                mode="lines",
+                name="Heuristic preview (linear)",
+                line=dict(color="#7f8c8d", dash="dot", width=1.5),
+            ),
+            secondary_y=False,
+        )
+
+    _shade_meal_markers(fig, record.meals)
+    _shade_exercise_spans(fig, record.exercise)
+
+    fig.update_xaxes(title_text="Time (min)")
+    fig.update_yaxes(title_text="Glucose (mg/dL)", secondary_y=False)
+    fig.update_yaxes(title_text="Insulin (U/h)", secondary_y=True)
+    fig.update_layout(
+        height=400,
+        margin=dict(l=50, r=55, t=40, b=40),
+        title_text="Twin-axis: glucose + insulin",
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+        hovermode="x unified",
+    )
+    return fig
+
+
 # ---------------------------------------------------------------------------
 # Episode runners
 # ---------------------------------------------------------------------------
@@ -417,26 +492,34 @@ def main() -> None:
         st.stop()
 
     progress = st.progress(0.0, text="Running baseline PID...")
-    baseline_record = run_demo_episode(
-        profile,
-        meals_runtime,
-        exercise_runtime,
-        controller="baseline",
-        horizon=horizon,
-        seed=int(seed),
-    )
+    try:
+        baseline_record = run_demo_episode(
+            profile,
+            meals_runtime,
+            exercise_runtime,
+            controller="baseline",
+            horizon=horizon,
+            seed=int(seed),
+        )
+    except Exception as exc:
+        st.error(f"Baseline rollout failed: {exc}")
+        st.stop()
     progress.progress(0.5, text="Running RL controller...")
 
     rl_record: Optional[EpisodeRecord] = None
     if compare_mode:
-        rl_record = run_demo_episode(
-            profile,
-            meals_runtime,
-            exercise_runtime,
-            controller="rl",
-            horizon=horizon,
-            seed=int(seed),
-        )
+        try:
+            rl_record = run_demo_episode(
+                profile,
+                meals_runtime,
+                exercise_runtime,
+                controller="rl",
+                horizon=horizon,
+                seed=int(seed),
+            )
+        except Exception as exc:
+            st.error(f"RL rollout failed: {exc}")
+            rl_record = None
 
     progress.progress(1.0, text="Rendering charts...")
     progress.empty()
@@ -491,6 +574,17 @@ def main() -> None:
             build_insulin_figure(primary_record, horizon=playback_idx),
             use_container_width=True,
         )
+        st.subheader("Twin-axis overlay (glucose + insulin)")
+        st.caption("Shared time axis; insulin uses the right-hand scale.")
+        st.plotly_chart(
+            build_glucose_insulin_twin_figure(
+                primary_record,
+                target_band=target_band,
+                show_preview=show_preview,
+                horizon=playback_idx,
+            ),
+            use_container_width=True,
+        )
 
     with right:
         st.subheader("Glucose distribution")
@@ -525,10 +619,16 @@ def main() -> None:
         st.line_chart(gains)
 
     if rl_record is None:
-        st.info(
-            "Compare mode is off (or no RL weights present). Enable the toggle and "
-            "download checkpoints to overlay an RL-tuned trajectory."
-        )
+        if compare_mode:
+            st.info(
+                "RL trajectory unavailable (rollout error above, or compare mode could not "
+                "produce an RL curve). Baseline PID results are still shown."
+            )
+        else:
+            st.info(
+                "Compare mode is off. Enable the toggle and download checkpoints to overlay "
+                "an RL-tuned trajectory."
+            )
 
     st.markdown(
         "---\n"
