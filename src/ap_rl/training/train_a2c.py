@@ -21,38 +21,9 @@ import argparse
 from dataclasses import dataclass
 from typing import Optional
 
-from ap_rl.agents import DiabetesA2CAgent
 from ap_rl.envs import DiabetesPIDEnv
+from ap_rl.envs.defaults import DEFAULT_PATIENT_PARAMS
 from ap_rl.utils.seed import set_global_seed
-
-
-DEFAULT_PATIENT_PARAMS = {
-    "BW": 75,
-    "k_a1": 0.006,
-    "k_a2": 0.06,
-    "k_a3": 0.05,
-    "k_b1": 0.003,
-    "k_b2": 0.06,
-    "k_b3": 0.04,
-    "k_c1": 0.5,
-    "V_I": 0.12,
-    "t_max_I": 55,
-    "k_e": 0.138,
-    "F_01": 0.0097,
-    "V_G": 0.16,
-    "k_12": 0.066,
-    "EGP_0": 0.0161,
-    "AG": 1.0,
-    "t_max_G": 30,
-    "G_init": 10.0,
-    "A_EGP": 0.05,
-    "phi_EGP": -60,
-    "F_peak": 1.35,
-    "K_rise": 5.0,
-    "K_decay": 0.01,
-    "G_thresh": 9.0,
-    "k_R": 0.0031,
-}
 
 
 @dataclass
@@ -113,13 +84,20 @@ def train(
     preset: str = "default",
     seed: Optional[int] = None,
     verbose: bool = True,
-) -> DiabetesA2CAgent:
-    """Run training under the named preset and return the trained agent."""
+):
+    """Run training under the named preset and return the trained agent.
+
+    TensorFlow is imported lazily here so importing the module does not
+    require ``tensorflow`` to be installed (useful for the demo and the
+    baseline smoke script).
+    """
     if preset not in PRESETS:
         raise ValueError(f"Unknown preset '{preset}'. Available: {list(PRESETS)}")
     config = PRESETS[preset]
 
     set_global_seed(seed)
+
+    from ap_rl.agents import DiabetesA2CAgent  # noqa: PLC0415 - lazy TF import
 
     env = build_env(seed=seed)
     agent = DiabetesA2CAgent(env)
