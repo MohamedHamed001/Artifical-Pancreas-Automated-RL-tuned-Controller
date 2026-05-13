@@ -1,237 +1,226 @@
-# Artificial Pancreas Automated RL-tuned Controller
+# Artificial Pancreas — RL-tuned PID Digital Twin
 
-A comprehensive Type 1 Diabetes management system that combines Reinforcement Learning (RL) with PID control to create an intelligent artificial pancreas. The system uses the Hovorka patient model to simulate realistic glucose-insulin dynamics and employs A2C (Advantage Actor-Critic) algorithms to automatically tune PID parameters for optimal glucose control.
+> Synthetic Type-1 Diabetes simulator with a Reinforcement-Learning-tuned
+> PID controller, a digital-twin Streamlit demo, and publication-quality
+> plotting helpers. **Research / engineering demo only — not a medical
+> device, not clinically validated.**
 
-![Controller Results](check.patientModel_RL.png)
+![Controller comparison preview](check.patientModel_RL.png)
 
-## 🎯 Project Overview
+## Highlights
 
-This project implements an advanced artificial pancreas system that:
+- **Hovorka virtual patient** ODE simulator (`ap_rl.envs.HovorkaPatient`)
+  with optional Numba acceleration.
+- **PID-tuning RL environment** (`ap_rl.envs.DiabetesPIDEnv`) — the A2C
+  agent outputs incremental ``(ΔKp, ΔKi, ΔKd)`` updates while a meal
+  bolus + correction calculator delivers prandial insulin.
+- **A2C actor/critic** networks (`ap_rl.agents.DiabetesA2CAgent`) with
+  weight checkpoints fetched on-demand from a GitHub Release.
+- **Streamlit digital-twin demo** (`app/app.py`): patient profile +
+  meal-template selector, Plotly glucose/insulin charts with shaded
+  target band, heuristic linear preview, and a baseline-vs-RL overlay.
+- **Synthetic patient profiles** in `configs/profiles/` covering
+  insulin-sensitive / insulin-resistant / unstable / controlled
+  archetypes — all clearly labelled as synthetic.
+- **Publication-quality matplotlib helpers**
+  (`ap_rl.visualization.publication`) for the figures in the paper /
+  portfolio writeup.
+- **Reproducibility**: `ap_rl.utils.seed.set_global_seed()` seeds
+  Python, NumPy, and TF; `DiabetesPIDEnv(seed=...)` makes scenario
+  selection and observation noise deterministic.
 
-- **Adaptive PID Control**: Uses RL to dynamically tune Kp, Ki, Kd parameters based on patient state
-- **Realistic Patient Simulation**: Implements the Hovorka model for accurate glucose-insulin dynamics
-- **Intelligent Insulin Delivery**: Combines basal insulin, meal boluses, and correction doses
-- **Safety-First Approach**: Includes comprehensive safety constraints and episode termination for dangerous glucose levels
-- **Exercise Integration**: Accounts for exercise-induced insulin sensitivity changes
-- **Meal Management**: Automated meal bolus calculation with carbohydrate counting
+## Architecture
 
-## 🏗️ Architecture
-
+```mermaid
+flowchart LR
+  subgraph sim [Simulation - ap_rl.envs]
+    HP[HovorkaPatient ODE]
+    PID[PID controller utils.pid_controller]
+    IC[InsulinCalculator meal + correction]
+    MP[MealParser TestCases.txt]
+  end
+  subgraph rl [Agents - ap_rl.agents]
+    A2C[DiabetesA2CAgent A2C actor + critic]
+  end
+  subgraph io [I/O]
+    CFG[configs profiles + meals]
+    CKPT[checkpoints download script]
+    DATA[data test_scenarios 200 cases]
+  end
+  HP --> Env[DiabetesPIDEnv 13-D obs + 3-D action]
+  PID --> Env
+  IC --> Env
+  MP --> HP
+  CFG --> Env
+  DATA --> HP
+  Env -->|"state"| A2C
+  A2C -->|"delta Kp Ki Kd"| Env
+  CKPT --> A2C
+  Env --> Demo[Streamlit demo app.app]
+  Env --> Viz[publication plots]
 ```
-RL Agent (A2C) → PID Parameter Tuning → PID Controller → Insulin Delivery
-       ↑                                        ↓
-Patient State ← Hovorka Model ← Total Insulin (Basal + Bolus + Correction)
-```
 
-### Core Components
-
-1. **Hovorka Patient Model** (`working_virtual_patient.py`)
-   - Realistic Type 1 Diabetes simulation
-   - Glucose-insulin dynamics modeling
-   - Exercise and meal integration
-   - Circadian rhythm considerations
-
-2. **Gym Environment** (`hovorka_gym_env.py`)
-   - OpenAI Gym-compatible interface
-   - State observation and reward calculation
-   - Episode management and safety constraints
-
-3. **RL Controller** (`RL_Diabetes_Controller/`)
-   - A2C (Advantage Actor-Critic) implementation
-   - Neural network-based policy learning
-   - Continuous action space for insulin rates
-
-4. **PID Tuner** (`Reinforcement_learning_based_PID_Tuner-master/`)
-   - Original RL-based PID tuning framework
-   - Tested on LunarLander environment
-   - Foundation for diabetes-specific implementation
-
-5. **Simulation Engine** (`artificial_pancreas_simulator.py`)
-   - Complete artificial pancreas simulation
-   - Meal and exercise scenario testing
-   - Performance evaluation and visualization
-
-## 🚀 Quick Start
-
-### Prerequisites
+## Quick start
 
 ```bash
-# Install required dependencies
-pip install -r RL_Diabetes_Controller/requirements.txt
+# 1. Clone + install (editable)
+git clone https://github.com/<your-org>/Artifical-Pancreas-Automated-RL-tuned-Controller.git
+cd Artifical-Pancreas-Automated-RL-tuned-Controller
+python -m venv .venv && source .venv/bin/activate
+pip install -e ".[demo,dev]"
+
+# 2. (Optional) download trained A2C checkpoints
+export AP_RL_CHECKPOINT_URL=https://github.com/<your-org>/<repo>/releases/download/v0.1.0
+ap-rl-download             # or: python scripts/download_checkpoints.py
+
+# 3. Launch the digital-twin demo
+streamlit run app/app.py
+
+# 4. (Optional) train your own weights
+ap-rl-train --preset default --seed 42
 ```
 
-### Training the RL Controller
+If you skip the `pip install -e .` step you can still run scripts and
+the demo from the repo root - they prepend `src/` to `sys.path`:
 
 ```bash
-# Navigate to the A2C directory
-cd RL_Diabetes_Controller/A2C/
-
-# Start training
-python diabetes_a2c_main.py
+PYTHONPATH=src python scripts/smoke_baseline_rollout.py
+PYTHONPATH=src streamlit run app/app.py
 ```
 
-### Testing the Controller
+## Repository layout
+
+```
+.
+├── app/app.py                 # Streamlit digital-twin demo
+├── configs/
+│   ├── patient_default.yaml   # canonical Hovorka parameter dict
+│   ├── demo.yaml              # Streamlit defaults
+│   ├── profiles/              # synthetic patient profiles (YAML)
+│   └── meals/                 # deterministic meal/exercise templates
+├── data/
+│   └── test_scenarios/        # 200 MealData/ExerciseData cases + TestCases.txt
+├── checkpoints/               # gitignored; downloaded weights land here
+├── scripts/
+│   ├── download_checkpoints.py
+│   └── smoke_baseline_rollout.py
+├── src/ap_rl/
+│   ├── envs/                  # HovorkaPatient + DiabetesPIDEnv + scenario builder
+│   ├── agents/                # A2C actor / critic / agent
+│   ├── utils/                 # PID, insulin math, paths, seed, configs
+│   ├── runtime/               # framework-agnostic run_episode helper
+│   ├── training/              # consolidated train_a2c with --preset CLI
+│   ├── visualization/         # publication-quality matplotlib helpers
+│   └── scripts/               # CLI entry points (ap-rl-download, ap-rl-train)
+├── docs/
+│   ├── legacy/                # archived artificial_pancreas_simulator.py
+│   └── legacy-pid-tuner/      # archived upstream LunarLander PID tuner
+└── tests/                     # pytest suite (env, utils, viz, downloader)
+```
+
+## How RL tunes PID
+
+The agent does **not** output insulin directly. Each minute it observes
+a 13-dimensional state (normalised glucose, glucose rate, error, PID
+internal terms, current gains, time-since-meal/insulin, exercise flag,
+time-of-day sin/cos) and emits an incremental delta on each PID gain.
+The gains are clipped to ``Kp ∈ [0.01, 2.0]``, ``Ki ∈ [0.0, 0.01]``,
+``Kd ∈ [0.0, 0.1]``. Insulin delivery is then composed from:
+
+1. **Basal**: PID output (sign-flipped, scaled) plus a TDI-derived
+   baseline ``BW × 0.55 × 0.5 / 24``.
+2. **Meal bolus + correction**: `InsulinCalculator` driven by the
+   500 / 1500 rules, with optional `carb_ratio` / `isf` overrides per
+   profile. A 15-minute lockout prevents double dosing.
+
+The reward function — preserved verbatim from the legacy code — is
+safety-first: heavy penalties for BGL < 50 or > 250, tight-band bonus
+for 80–140, plus a stability bonus and a small PID-stability bonus.
+
+## Training presets
+
+`ap-rl-train --preset {default,robust,conservative}` consolidates the
+four legacy trainers (`advanced_training.py`, `robust_training.py`,
+`fixed_diabetes_trainer.py`, `simple_effective_trainer.py`) into a
+single entry point. Tuned hyperparameters live in
+`src/ap_rl/training/train_a2c.py::PRESETS`.
 
 ```bash
-# Test the trained controller
-cd RL_Diabetes_Controller/envs/
-python diabetes_test.py
+ap-rl-train --preset default --seed 42
+ap-rl-train --preset robust --seed 7
+ap-rl-train --preset conservative
 ```
 
-### Running the Complete Simulator
+Weights are written to `<repo>/checkpoints/` as
+`diabetes_actor_<name>.h5` / `diabetes_critic_<name>.h5`. The best
+episode is saved as `diabetes_actor_best.h5` automatically.
+
+## Synthetic patient profiles
+
+Switch profiles from the demo sidebar or call `load_profile(name)`
+directly. All four ship in `configs/profiles/`:
+
+| Profile             | Story                                                          |
+|---------------------|----------------------------------------------------------------|
+| `controlled`        | Nominal defaults; reference scenario.                          |
+| `insulin_sensitive` | Tighter carb ratio, faster insulin elimination, lower TDI.     |
+| `insulin_resistant` | Wider carb ratio, slower insulin action, blunted exercise rise.|
+| `unstable`          | Default physiology + 5 mg/dL Gaussian sensor noise on the BGL. |
+
+Important: the profiles are **synthetic**. They do not represent real
+patients and are not appropriate for clinical decisions.
+
+## Tests
 
 ```bash
-# Run the artificial pancreas simulator
-python artificial_pancreas_simulator.py
+pytest -q          # full suite (~1 s, no TF required)
+pytest -v          # verbose
+pytest tests/test_env_step.py -k seed_reproducibility
 ```
 
-## 📊 Reward System
+## Deployment notes
 
-The RL agent learns through a sophisticated reward system:
+### Docker (CPU)
 
-- **Safety Violation (Episode End)**: BGL < 50 or > 250 mg/dL
-- **Excellent Control (+15)**: 80-140 mg/dL (target range)
-- **Good Control (+5)**: 70-79, 141-180 mg/dL (acceptable range)
-- **Penalized (-10)**: BGL < 70 or > 180 mg/dL
-- **Additional Penalties**: Rapid insulin changes, glucose rate of change
-
-## 🧪 Test Scenarios
-
-The system includes comprehensive test data:
-
-- **100 Test Cases**: Diverse meal and exercise scenarios
-- **Challenging Scenarios**: Edge cases for robust testing
-- **Realistic Data**: Based on actual Type 1 Diabetes patterns
-
-### Test Data Structure
-
-```
-TestData/
-├── MealData_case1.data    # Meal timing and carbohydrate content
-├── ExerciseData_case1.data # Exercise timing and intensity
-└── ... (100 test cases)
+```Dockerfile
+FROM python:3.11-slim
+WORKDIR /app
+COPY . /app
+RUN pip install --no-cache-dir -e ".[demo]"
+EXPOSE 8501
+CMD ["streamlit", "run", "app/app.py", "--server.address=0.0.0.0"]
 ```
 
-## 📁 Project Structure
+### Hugging Face Spaces
 
-```
-Artifical-Pancreas-Automated-RL-tuned-Controller/
-├── artificial_pancreas_simulator.py          # Main simulation engine
-├── hovorka_gym_env.py                       # Gym environment wrapper
-├── working_virtual_patient.py               # Hovorka patient model
-├── RL_Diabetes_Controller/                  # Main RL implementation
-│   ├── A2C/                                # A2C algorithm implementation
-│   │   ├── diabetes_a2c_agent.py           # Main RL agent
-│   │   ├── diabetes_a2c_actor.py           # Actor network
-│   │   ├── diabetes_a2c_critic.py          # Critic network
-│   │   ├── diabetes_a2c_main.py            # Training script
-│   │   └── save_weights/                   # Trained models
-│   ├── envs/                               # Environment implementations
-│   │   ├── diabetes_pid_env.py             # PID environment
-│   │   └── diabetes_test.py                # Testing script
-│   ├── data/test_cases/                    # Test scenarios
-│   └── utils/                              # Utility functions
-│       ├── insulin_calculator.py           # Bolus calculations
-│       ├── meal_parser.py                  # Data parsing
-│       └── pid_controller.py               # PID implementation
-├── Reinforcement_learning_based_PID_Tuner-master/  # Original PID tuner
-├── TestData/                               # 100 test scenarios
-├── TestCaseManager/                        # Test case generation tools
-└── RL_Diabetes_Integration_Package/        # Deployment package
-```
+1. Create a Streamlit space.
+2. Push this repo. Spaces will install `requirements.txt` automatically.
+3. Set `AP_RL_CHECKPOINT_URL` in Space secrets to a public Release URL.
+4. The first cold start downloads weights into `checkpoints/`.
 
-## 🔧 Key Features
+### Streamlit Community Cloud
 
-### Insulin Delivery System
-- **Basal Insulin**: RL-tuned PID controller for continuous insulin delivery
-- **Meal Bolus**: Automated calculation based on carbohydrate content
-- **Correction Dose**: Additional insulin for high glucose levels
-- **Safety Lockout**: 15-minute minimum interval between boluses
+1. Point the app at `app/app.py`.
+2. Set `AP_RL_CHECKPOINT_URL` in Secrets if you want RL mode on first
+   render.
+3. Add `requirements.txt` is at the repo root — it is.
 
-### Safety Constraints
-- Episode termination for dangerous glucose levels
-- Progressive penalty system for suboptimal control
-- Insulin rate limiting and smoothing
-- Comprehensive error handling
+## Safety disclaimer
 
-### Advanced Modeling
-- **Hovorka Model**: State-of-the-art glucose-insulin dynamics
-- **Exercise Integration**: Real-time insulin sensitivity adjustment
-- **Circadian Rhythms**: Time-of-day effects on glucose metabolism
-- **Meal Absorption**: Realistic carbohydrate absorption modeling
+This simulator is intended for research, education, and engineering
+portfolio demonstrations only. The synthetic patient profiles do **not**
+represent real patients. The PID-tuning RL agent does not generalise to
+real continuous glucose monitor or insulin pump hardware. Nothing here
+should be used to make actual diabetes-management decisions.
 
-## 📈 Performance Metrics
+## Acknowledgements
 
-The system tracks multiple performance indicators:
+- **Hovorka 2004** for the underlying virtual-patient model.
+- **A2C / OpenAI Spinning Up** for the actor-critic formulation.
+- **IvPID** (Caner Durmusoglu, GPL-3) for the vendored PID controller.
+- The legacy LunarLander RL-PID tuner under `docs/legacy-pid-tuner/`
+  for the original PID-tuning RL recipe.
 
-- **Time in Range (TIR)**: Percentage of time glucose is in target range
-- **Hypoglycemia Events**: Frequency and severity of low glucose
-- **Hyperglycemia Events**: Frequency and severity of high glucose
-- **Insulin Efficiency**: Total insulin used vs. glucose control achieved
-- **Safety Metrics**: Episode termination rates and dangerous excursions
+## License
 
-## 🛠️ Development
-
-### Adding New Test Cases
-
-```bash
-# Use the test case manager to generate new scenarios
-cd TestCaseManager/
-python t1dm_mgr_generator.py
-```
-
-### Customizing the Reward Function
-
-Modify the reward calculation in `hovorka_gym_env.py`:
-
-```python
-def _calculate_reward(self, BGL: float, insulin_rate: float) -> float:
-    # Customize reward logic here
-    pass
-```
-
-### Extending the Patient Model
-
-The Hovorka model can be extended in `working_virtual_patient.py` to include:
-- Additional patient parameters
-- New physiological processes
-- Custom meal/exercise patterns
-
-## 📚 Dependencies
-
-```
-tensorflow>=2.10.0
-scikit-learn>=0.24.0
-matplotlib>=3.5.0
-numpy>=1.21.0
-scipy>=1.7.0
-pandas>=1.3.0
-gym
-```
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests for new functionality
-5. Submit a pull request
-
-## 📄 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## 🙏 Acknowledgments
-
-- **Hovorka Model**: Based on the work of Roman Hovorka et al.
-- **OpenAI Gym**: For the environment interface framework
-- **A2C Algorithm**: Implementation based on the Advantage Actor-Critic paper
-- **PID Control**: Foundation from the RL-based PID tuner project
-
-## 📞 Support
-
-For questions, issues, or contributions, please open an issue on the GitHub repository.
-
----
-
-**Note**: This system is for research and educational purposes. It should not be used for actual diabetes management without proper medical supervision and regulatory approval. 
+MIT — see `LICENSE` (TODO: add).
