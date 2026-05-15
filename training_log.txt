@@ -1,0 +1,117 @@
+[hardware] M4 CPU: 10 physical / 10 logical cores — inter_op=10, intra_op=10
+[hardware] No GPU detected — running on CPU (Metal requires tensorflow-macos≤2.16)
+Training with preset 'allprofiles'
+  max_episodes=600, actor_lr=0.0003, critic_lr=0.0006, noise=0.2 (min=0.04), patience=200
+  Multi-profile curriculum: random patient sampled each episode
+  Patient ranges: ISF 20–80, CR 6–20, Weight 55–100 kg
+  Held-out eval: 16 scenarios every 50 episodes (IDs: [43, 42, 92, 10, 66]...)
+  Best checkpoint = highest mean TIR across held-out scenarios
+
+=== Episode 1/600 === [ISF=29, CR=15.1, BW=70kg]
+  Step 200/1440: BGL=98.0, Reward=57.92, noise=0.200
+  Step 400/1440: BGL=131.9, Reward=41.03, noise=0.200
+  Step 600/1440: BGL=76.0, Reward=47.53, noise=0.200
+  Step 800/1440: BGL=122.8, Reward=48.42, noise=0.200
+  Step 1000/1440: BGL=68.2, Reward=0.77, noise=0.200
+  Step 1200/1440: BGL=126.4, Reward=45.59, noise=0.200
+  Step 1400/1440: BGL=104.1, Reward=57.65, noise=0.200
+Episode 1: reward=48791.07, len=1440, TIR70-180=83.3%, noise=0.1990, recent100_avg=48791.07
+
+=== Episode 2/600 === [ISF=23, CR=13.1, BW=71kg]
+  Step 200/1440: BGL=94.7, Reward=57.43, noise=0.199
+  Step 400/1440: BGL=67.5, Reward=-2.11, noise=0.199
+  Step 600/1440: BGL=81.0, Reward=51.14, noise=0.199
+  Step 800/1440: BGL=66.1, Reward=-7.62, noise=0.199
+  Step 1000/1440: BGL=80.0, Reward=50.49, noise=0.199
+  Step 1200/1440: BGL=73.3, Reward=45.34, noise=0.199
+  Step 1400/1440: BGL=78.9, Reward=49.71, noise=0.199
+Episode 2: reward=56868.82, len=1440, TIR70-180=81.5%, noise=0.1980, recent100_avg=52829.95
+
+=== Episode 3/600 === [ISF=25, CR=11.9, BW=58kg]
+  Step 200/1440: BGL=108.7, Reward=56.48, noise=0.198
+  Step 400/1440: BGL=87.8, Reward=55.06, noise=0.198
+  Step 600/1440: BGL=67.6, Reward=-1.69, noise=0.198
+  Step 800/1440: BGL=74.3, Reward=46.20, noise=0.198
+  Step 1000/1440: BGL=75.4, Reward=47.06, noise=0.198
+  Step 1200/1440: BGL=64.3, Reward=-14.77, noise=0.198
+  Step 1400/1440: BGL=88.5, Reward=55.38, noise=0.198
+Episode 3: reward=54382.20, len=1440, TIR70-180=78.4%, noise=0.1970, recent100_avg=53347.36
+
+=== Episode 4/600 === [ISF=58, CR=19.3, BW=65kg]
+  Step 200/1440: BGL=112.2, Reward=55.07, noise=0.197
+  Step 400/1440: BGL=91.9, Reward=56.69, noise=0.197
+  Step 600/1440: BGL=108.2, Reward=56.66, noise=0.197
+  Step 800/1440: BGL=110.8, Reward=55.68, noise=0.197
+  Step 1000/1440: BGL=125.3, Reward=46.47, noise=0.197
+  Step 1200/1440: BGL=109.8, Reward=56.07, noise=0.197
+  Step 1400/1440: BGL=130.5, Reward=42.23, noise=0.197
+Episode 4: reward=75391.60, len=1440, TIR70-180=100.0%, noise=0.1960, recent100_avg=58858.42
+
+=== Episode 5/600 === [ISF=23, CR=18.0, BW=99kg]
+  Step 200/1440: BGL=123.5, Reward=47.89, noise=0.196
+  Step 400/1440: BGL=71.6, Reward=43.99, noise=0.196
+  Step 600/1440: BGL=67.3, Reward=-2.68, noise=0.196
+  Step 800/1440: BGL=94.0, Reward=57.28, noise=0.196
+  Step 1000/1440: BGL=102.2, Reward=57.90, noise=0.196
+  Step 1200/1440: BGL=110.0, Reward=55.99, noise=0.196
+  Step 1400/1440: BGL=110.4, Reward=55.84, noise=0.196
+Episode 5: reward=55476.12, len=1440, TIR70-180=84.9%, noise=0.1950, recent100_avg=58181.96
+
+=== Episode 6/600 === [ISF=39, CR=17.4, BW=60kg]
+  Step 200/1440: BGL=105.0, Reward=57.49, noise=0.195
+  Step 400/1440: BGL=97.7, Reward=57.90, noise=0.195
+  Step 600/1440: BGL=88.6, Reward=55.40, noise=0.195
+  Step 800/1440: BGL=115.3, Reward=-3.85, noise=0.195
+  Step 1000/1440: BGL=115.5, Reward=53.30, noise=0.195
+  Step 1200/1440: BGL=86.7, Reward=54.54, noise=0.195
+  Step 1400/1440: BGL=131.6, Reward=-232.38, noise=0.195
+Episode 6: reward=56799.73, len=1440, TIR70-180=100.0%, noise=0.1941, recent100_avg=57951.59
+
+=== Episode 7/600 === [ISF=42, CR=13.7, BW=84kg]
+  Step 200/1440: BGL=83.2, Reward=52.56, noise=0.194
+  Step 400/1440: BGL=83.7, Reward=-43.88, noise=0.194
+  Step 600/1440: BGL=84.1, Reward=53.09, noise=0.194
+  Step 800/1440: BGL=90.1, Reward=56.04, noise=0.194
+  Step 1000/1440: BGL=70.6, Reward=43.11, noise=0.194
+  Step 1200/1440: BGL=83.5, Reward=52.75, noise=0.194
+  Step 1400/1440: BGL=87.2, Reward=-390.62, noise=0.194
+Episode 7: reward=-23228.81, len=1440, TIR70-180=76.2%, noise=0.1931, recent100_avg=46354.39
+
+=== Episode 8/600 === [ISF=61, CR=12.0, BW=64kg]
+  Step 200/1440: BGL=187.7, Reward=-1.28, noise=0.193
+  Step 400/1440: BGL=75.1, Reward=16.46, noise=0.193
+  Step 600/1440: BGL=62.3, Reward=-22.93, noise=0.193
+  Step 800/1440: BGL=115.6, Reward=53.29, noise=0.193
+  Step 1000/1440: BGL=62.0, Reward=-23.97, noise=0.193
+  Step 1200/1440: BGL=98.5, Reward=57.96, noise=0.193
+  Step 1400/1440: BGL=117.0, Reward=-337.72, noise=0.193
+Episode 8: reward=2411.60, len=1440, TIR70-180=81.5%, noise=0.1921, recent100_avg=40861.54
+
+=== Episode 9/600 === [ISF=38, CR=17.1, BW=75kg]
+  Step 200/1440: BGL=114.2, Reward=54.04, noise=0.192
+  Step 400/1440: BGL=126.1, Reward=45.87, noise=0.192
+  Step 600/1440: BGL=88.0, Reward=55.16, noise=0.192
+  Step 800/1440: BGL=110.0, Reward=56.01, noise=0.192
+  Step 1000/1440: BGL=115.3, Reward=53.47, noise=0.192
+  Step 1200/1440: BGL=121.5, Reward=49.37, noise=0.192
+  Step 1400/1440: BGL=107.4, Reward=56.89, noise=0.192
+Episode 9: reward=69932.60, len=1440, TIR70-180=100.0%, noise=0.1912, recent100_avg=44091.66
+
+=== Episode 10/600 === [ISF=52, CR=18.3, BW=81kg]
+  Step 200/1440: BGL=102.5, Reward=57.88, noise=0.191
+  Step 400/1440: BGL=101.9, Reward=57.93, noise=0.191
+  Step 600/1440: BGL=187.0, Reward=-340.71, noise=0.191
+  Step 800/1440: BGL=115.1, Reward=-211.91, noise=0.191
+  Step 1000/1440: BGL=115.7, Reward=-278.56, noise=0.191
+  Step 1200/1440: BGL=90.7, Reward=56.25, noise=0.191
+  Step 1400/1440: BGL=139.5, Reward=-844.01, noise=0.191
+Episode 10: reward=-93841.49, len=1440, TIR70-180=96.7%, noise=0.1902, recent100_avg=30298.34
+
+=== Episode 11/600 === [ISF=27, CR=11.9, BW=99kg]
+  Step 200/1440: BGL=105.6, Reward=57.36, noise=0.190
+  Step 400/1440: BGL=80.8, Reward=51.04, noise=0.190
+  Step 600/1440: BGL=100.7, Reward=57.99, noise=0.190
+  Step 800/1440: BGL=112.0, Reward=55.16, noise=0.190
+  Step 1000/1440: BGL=113.1, Reward=54.59, noise=0.190
+  Step 1200/1440: BGL=113.9, Reward=54.20, noise=0.190
+  Step 1400/1440: BGL=118.4, Reward=51.57, noise=0.190

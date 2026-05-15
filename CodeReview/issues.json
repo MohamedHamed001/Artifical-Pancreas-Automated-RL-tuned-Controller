@@ -1,0 +1,272 @@
+[
+  {
+    "id": "BUG-001",
+    "severity": "critical",
+    "category": "simulator",
+    "filepath": "src/ap_rl/envs/hovorka_patient.py",
+    "line_range": "323-389 vs 216-272",
+    "summary": "Numba and Python integrators produce different physics: Numba uses forward Euler without circadian EGP modulation; Python uses RK45 with circadian EGP. Training with one and evaluating with the other causes silent distribution shift.",
+    "recommendation": "Unify to a single RK4 fixed-step integrator (works in both Numba and pure Python) with circadian EGP included in both paths. Validate against reference RK45 solution."
+  },
+  {
+    "id": "BUG-002",
+    "severity": "critical",
+    "category": "rl_formulation",
+    "filepath": "src/ap_rl/envs/diabetes_pid_env.py",
+    "line_range": "541-627",
+    "summary": "The RL action space (dKp, dKi, dKd) creates a meta-controller problem where the agent adjusts PID gains rather than directly controlling insulin. This adds 3 levels of indirection between action and effect, making credit assignment nearly impossible and causing gain drift.",
+    "recommendation": "Replace PID-delta action space with direct insulin control (basal rate adjustment) or supervisory control (MPC parameter adjustment). The PID intermediary adds complexity without benefit."
+  },
+  {
+    "id": "BUG-003",
+    "severity": "critical",
+    "category": "reward_function",
+    "filepath": "src/ap_rl/envs/diabetes_pid_env.py",
+    "line_range": "368-476",
+    "summary": "Reward function is anti-correlated with clinical outcomes. Episode 10 in training_log.txt: TIR=96.7% but reward=-93,841. The IOB brake and rate penalties dominate, punishing effective control achieved through aggressive insulin delivery. Catastrophic -10,000 penalty for glucose<40 creates extreme gradient variance.",
+    "recommendation": "Replace with bounded clinical reward: +1 for TIR, mild penalties for out-of-range, no catastrophic spikes. Total reward per step should be bounded to approximately [-5, +1]."
+  },
+  {
+    "id": "BUG-004",
+    "severity": "medium",
+    "category": "test_failure",
+    "filepath": "tests/test_insulin_calculator.py",
+    "line_range": "79",
+    "summary": "test_correction_dose_negative expects correction dose for BGL=90 to be negative (dose < 0), but the InsulinCalculator now has a 20 mg/dL dead-band. For BGL=90 and target=120, glucose_difference=-30 which is less than correction_dead_band=20, so the method returns 0.0, not a negative value.",
+    "recommendation": "Update test assertion to assert dose == 0.0, or test with BGL well above target+dead_band to get a positive dose, or test below-target scenario separately."
+  },
+  {
+    "id": "BUG-005",
+    "severity": "high",
+    "category": "concurrency",
+    "filepath": "src/ap_rl/envs/diabetes_pid_env.py",
+    "line_range": "252-259",
+    "summary": "DiabetesPIDEnv.reset() writes meal/exercise data to fixed paths temp_data/meal_temp.data and temp_data/exercise_temp.data on every episode reset. This creates a race condition if multiple environments run in parallel (multi-process training) and adds unnecessary disk I/O.",
+    "recommendation": "Pass meal/exercise data directly to HovorkaPatient via in-memory API (e.g., set DataFrame attributes directly) instead of writing to and reading from temp files."
+  },
+  {
+    "id": "BUG-006",
+    "severity": "high",
+    "category": "physiology",
+    "filepath": "src/ap_rl/envs/diabetes_pid_env.py",
+    "line_range": "594",
+    "summary": "IOB (insulin on board) tracked as simple exponential decay: iob = iob * 0.985 + delivered/60. Real subcutaneous insulin has a characteristic absorption profile with onset 15min, peak 60-90min, duration 3-5h. The exponential model drastically underestimates IOB during the critical first hour after delivery.",
+    "recommendation": "Use the Hovorka model's own subcutaneous compartments (S1+S2+I) as the IOB estimate, since these already model proper insulin pharmacokinetics. Alternatively, implement a standard 2-compartment insulin absorption model."
+  },
+  {
+    "id": "BUG-007",
+    "severity": "high",
+    "category": "safety",
+    "filepath": "src/ap_rl/envs/diabetes_pid_env.py",
+    "line_range": "551,580",
+    "summary": "Kp gain clipped to [0.01, 10.0] allows dangerously high insulin delivery. At Kp=10 with 40 mg/dL error, PID output=400, scaled by 0.01=4 U/h adjustment. Combined with base basal, total can exceed 5 U/h. Additionally, total_insulin_rate has no hard upper bound — bolus + basal is unconstrained.",
+    "recommendation": "Reduce Kp upper bound to 3.0. Add hard ceiling on total insulin rate (e.g., 5 U/h basal + 15 U bolus per event). Add daily cumulative insulin limit."
+  },
+  {
+    "id": "BUG-008",
+    "severity": "medium",
+    "category": "determinism",
+    "filepath": "src/ap_rl/utils/pid_controller.py",
+    "line_range": "25-26",
+    "summary": "PID constructor defaults current_time and last_time to time.time() (wall clock). First update() call computes delta_time as simulation-time minus wall-clock-time, producing nonsensical derivatives. The env usually passes current_time on subsequent calls, but the first step has a wrong delta_time.",
+    "recommendation": "Initialize PID with current_time=0 explicitly. Remove time.time() default. Always require simulation time to be passed."
+  },
+  {
+    "id": "BUG-009",
+    "severity": "high",
+    "category": "pid_controller",
+    "filepath": "src/ap_rl/utils/pid_controller.py",
+    "line_range": "39",
+    "summary": "PID.clear() initializes PTerm to 0.2 instead of 0.0, creating a non-zero bias in the proportional output from the first timestep. This means the controller starts with a phantom error signal.",
+    "recommendation": "Change self.PTerm = 0.2 to self.PTerm = 0.0 in the clear() method."
+  },
+  {
+    "id": "BUG-010",
+    "severity": "medium",
+    "category": "pid_controller",
+    "filepath": "src/ap_rl/utils/pid_controller.py",
+    "line_range": "49-54",
+    "summary": "No derivative filtering — DTerm is computed as raw (error-last_error)/delta_time. With noisy glucose measurements (especially with observation_noise_std > 0), derivative term amplifies noise into large spikes that destabilize control output.",
+    "recommendation": "Add a first-order low-pass filter to the derivative term: DTerm = alpha * DTerm + (1-alpha) * new_DTerm, with alpha ≈ 0.8."
+  },
+  {
+    "id": "BUG-011",
+    "severity": "medium",
+    "category": "observation_space",
+    "filepath": "src/ap_rl/envs/diabetes_pid_env.py",
+    "line_range": "305-366",
+    "summary": "7 of 19 observation features are near-zero most of the time (glucose_rate/100, PID.ITerm/100, PID.DTerm/10, glucose_rate_2/100, IOB/10, Ki raw, Kd raw). These provide negligible gradient signal to the neural network, effectively reducing the useful observation space to 12 dimensions while adding noise.",
+    "recommendation": "Redesign observation normalization: use min-max or z-score normalization based on running statistics. Remove redundant features (glucose_rate and glucose_rate_2 are nearly identical)."
+  },
+  {
+    "id": "BUG-012",
+    "severity": "medium",
+    "category": "reward_function",
+    "filepath": "src/ap_rl/envs/diabetes_pid_env.py",
+    "line_range": "405-407",
+    "summary": "Reward function targets glucose=100 mg/dL (Gaussian centered at 100) but PID setpoint is 120 mg/dL. The agent is rewarded for pulling glucose toward 100 while the PID controller pushes toward 120, creating a tug-of-war that wastes learning capacity.",
+    "recommendation": "Align reward center with PID setpoint (120 mg/dL), or better, use a flat reward within the 70-180 range rather than a peaked Gaussian."
+  },
+  {
+    "id": "BUG-013",
+    "severity": "low",
+    "category": "software_engineering",
+    "filepath": "src/ap_rl/envs/diabetes_pid_env.py",
+    "line_range": "660-673",
+    "summary": "Module-level atexit handler registers _cleanup_temp_files() which deletes temp_data/ directory. This is a side effect of importing the module, which can surprise users and interfere with other code using the same directory.",
+    "recommendation": "Remove the atexit handler. Eliminate the temp file pattern entirely (BUG-005 fix removes the need)."
+  },
+  {
+    "id": "BUG-014",
+    "severity": "medium",
+    "category": "training",
+    "filepath": "src/ap_rl/agents/diabetes_a2c_agent.py",
+    "line_range": "324-329",
+    "summary": "Early stopping logic has a double-update bug: best_avg_reward is checked and potentially updated on line 316 (best-model save) AND again on line 325 (early stopping counter). When use_tir_criterion is False, the early stopping patience counter may be reset even when it shouldn't be, or conversely may never trigger correctly.",
+    "recommendation": "Unify the best-model logic: check avg_reward once, update best_avg_reward once, use a single counter for patience."
+  },
+  {
+    "id": "BUG-015",
+    "severity": "medium",
+    "category": "training",
+    "filepath": "src/ap_rl/training/train_a2c.py",
+    "line_range": "393",
+    "summary": "np.random.normal() called directly in training loop (line 393: allprofiles preset) and in agent.train() (line 214). These use the global numpy RNG state rather than the seeded RNG, breaking reproducibility when seed is set.",
+    "recommendation": "Use a seeded np.random.Generator instance passed through the agent, not the global np.random functions."
+  },
+  {
+    "id": "BUG-016",
+    "severity": "low",
+    "category": "software_engineering",
+    "filepath": "src/ap_rl/envs/diabetes_pid_env.py",
+    "line_range": "84,121,141",
+    "summary": "Multiple assignments of self.bolus_duration (line 85: 30, line 141: 15) and self.max_episode_length (line 84 and 121: both 1440). Duplicate assignments indicate copy-paste issues and can hide bugs if values diverge.",
+    "recommendation": "Remove duplicate assignments. Define constants once at the class level or in a config."
+  },
+  {
+    "id": "BUG-017",
+    "severity": "high",
+    "category": "simulator",
+    "filepath": "src/ap_rl/envs/hovorka_patient.py",
+    "line_range": "237,89",
+    "summary": "t_max_G parameter inconsistency: Python ODE method uses t_max_G default of 40 (line 237) while Numba path and config file use 30 (line 89, patient_default.yaml). If the config doesn't explicitly set t_max_G, the two paths use different meal absorption rates.",
+    "recommendation": "Remove all default parameter values from the ODE methods. Always require explicit parameters from the config dict to prevent silent defaults."
+  },
+  {
+    "id": "BUG-018",
+    "severity": "medium",
+    "category": "software_engineering",
+    "filepath": "app/app.py",
+    "line_range": "292-295",
+    "summary": "Monkey-patching env._skip_reload = True to prevent scenario reload during demo. This undocumented internal attribute is fragile and creates tight coupling between the app and env internals.",
+    "recommendation": "Add a proper constructor parameter (e.g., auto_reload_scenario=False) to DiabetesPIDEnv instead of relying on monkey-patching."
+  },
+  {
+    "id": "BUG-019",
+    "severity": "low",
+    "category": "visualization",
+    "filepath": "src/ap_rl/visualization/publication.py",
+    "line_range": "26",
+    "summary": "Inline conditional: matplotlib.use('Agg') if not hasattr(matplotlib, '_test_imported') else None. This is a code smell — backend selection should happen cleanly in conftest.py or at application entry, not conditionally in a library module.",
+    "recommendation": "Remove backend selection from publication.py. Set MPLBACKEND environment variable in conftest.py (already done) and in app entry points."
+  },
+  {
+    "id": "BUG-020",
+    "severity": "high",
+    "category": "rl_formulation",
+    "filepath": "src/ap_rl/agents/diabetes_a2c_actor.py",
+    "line_range": "91-92",
+    "summary": "Actor policy uses a fixed Gaussian std of 0.1 for log-probability computation (line 91: std = tf.constant(0.1)). This means the policy entropy is constant and cannot adapt — the agent can never become more or less certain about its actions. In SAC or proper Gaussian policies, std is a learned parameter.",
+    "recommendation": "Either learn log_std as a network output (Gaussian policy) or use a proper PPO clipping objective that doesn't require explicit std."
+  },
+  {
+    "id": "BUG-021",
+    "severity": "low",
+    "category": "software_engineering",
+    "filepath": "src/ap_rl/envs/diabetes_pid_env.py",
+    "line_range": "569-573",
+    "summary": "PID.update() called without passing current_time parameter, relying on internal time tracking. But the env's step() does not advance PID's internal clock consistently — the PID uses its own time.time()-based delta, not simulation time.",
+    "recommendation": "Always pass self.current_step as current_time to pid.update(). Or better, replace the vendored PID with a proper discrete-time PID that takes dt as an explicit parameter."
+  },
+  {
+    "id": "BUG-022",
+    "severity": "medium",
+    "category": "safety",
+    "filepath": "src/ap_rl/envs/diabetes_pid_env.py",
+    "line_range": "478-495",
+    "summary": "Safety clamp only applies to basal rate, not to bolus insulin. The _safety_clamp function is called on basal_rate (line 583), but bolus_rate is added afterward (line 585) without any safety check. A large meal bolus can be delivered even when glucose is critically low.",
+    "recommendation": "Apply safety constraints to total_insulin_rate, not just basal. Suspend all insulin delivery (including active bolus tail) when glucose < 70."
+  },
+  {
+    "id": "BUG-023",
+    "severity": "low",
+    "category": "software_engineering",
+    "filepath": "src/ap_rl/envs/hovorka_patient.py",
+    "line_range": "280-282",
+    "summary": "Meal detection uses exact time matching: self.meal_data[self.meal_data['time'] == t]. With floating-point time values, exact equality comparisons can miss meals due to precision issues.",
+    "recommendation": "Use a small epsilon for time matching: abs(meal_time - t) < 0.5, or use integer time indices."
+  },
+  {
+    "id": "BUG-024",
+    "severity": "low",
+    "category": "delete_candidate",
+    "filepath": "docs/legacy-pid-tuner/",
+    "line_range": "entire directory",
+    "summary": "Legacy PID tuner directory contains LunarLander A2C/PPO code that has no relation to the Artificial Pancreas project. Confuses contributors and inflates the repository.",
+    "recommendation": "Delete the entire docs/legacy-pid-tuner/ directory. If historical reference is needed, it's preserved in git history."
+  },
+  {
+    "id": "BUG-025",
+    "severity": "low",
+    "category": "delete_candidate",
+    "filepath": "TestCaseManager/",
+    "line_range": "entire directory",
+    "summary": "Amesim test case manager scripts. Violates the self-contained Python requirement and depends on external proprietary software.",
+    "recommendation": "Delete the TestCaseManager/ directory entirely."
+  },
+  {
+    "id": "BUG-026",
+    "severity": "low",
+    "category": "delete_candidate",
+    "filepath": "verify_best_model.py",
+    "line_range": "entire file",
+    "summary": "Ad-hoc verification script with hardcoded paths ('models/'), duplicates rollout.py functionality, and uses sys.path.append('src') instead of proper package imports.",
+    "recommendation": "Delete. Use scripts/smoke_baseline_rollout.py or a proper evaluation script instead."
+  },
+  {
+    "id": "BUG-027",
+    "severity": "medium",
+    "category": "training",
+    "filepath": "src/ap_rl/training/train_a2c.py",
+    "line_range": "344-487",
+    "summary": "The allprofiles preset monkey-patches agent.train() with a completely rewritten training loop (_multi_profile_train). This means the same training logic exists in two places (agent.train and the monkey-patched version) with subtle differences, making maintenance extremely error-prone.",
+    "recommendation": "Refactor to use a single training loop with configurable patient sampling callback. The training loop should accept a patient_factory callable rather than being replaced entirely."
+  },
+  {
+    "id": "BUG-028",
+    "severity": "medium",
+    "category": "simulator",
+    "filepath": "src/ap_rl/envs/hovorka_patient.py",
+    "line_range": "281-284",
+    "summary": "Meal carbs loaded instantaneously into D1 gut compartment: self.D1 += carbs_mmol. Real meal absorption involves variable gastric emptying (15-90 minutes depending on meal composition). This causes unrealistically fast glucose spikes and may explain the oscillatory control behavior.",
+    "recommendation": "Implement a gastric emptying model: split meal carbs over a configurable absorption window (e.g., 30-60 minutes) rather than instantaneous loading."
+  },
+  {
+    "id": "BUG-029",
+    "severity": "low",
+    "category": "software_engineering",
+    "filepath": "src/ap_rl/envs/hovorka_gym_env.py",
+    "line_range": "entire file",
+    "summary": "Half-baked Gymnasium wrapper with a different 13-D observation space vs the main env's 19-D space. Not integrated with the training pipeline. Tests are marked 'optional' (pytest.importorskip). Provides a false sense of Gym compatibility.",
+    "recommendation": "Delete and rebuild as part of the new architecture with proper Gymnasium compliance as the primary env interface."
+  },
+  {
+    "id": "BUG-030",
+    "severity": "medium",
+    "category": "metrics",
+    "filepath": "src/ap_rl/evaluation/metrics.py",
+    "line_range": "entire file",
+    "summary": "Metrics module only computes basic TIR, mean, std, and band percentages. Missing critical International Consensus metrics: TBR Level 2 (<54), GMI, CV%, LBGI, HBGI, MAGE, and Ambulatory Glucose Profile statistics.",
+    "recommendation": "Expand with full International Consensus on CGM (2019) metrics. Add Kovatchev risk indices. Add AGP report generation capability."
+  }
+]
