@@ -33,9 +33,12 @@ class DiabetesCritic:
         return float(value.numpy()[0])
 
     def train_on_batch(self, states: np.ndarray, td_targets: np.ndarray) -> float:
+        """Eager MSE update. @tf.function removed — first-trace caused multi-minute hang."""
+        s = tf.constant(states, dtype=tf.float32)
+        t = tf.constant(td_targets, dtype=tf.float32)
         with tf.GradientTape() as tape:
-            predicted_values = self.model(states)
-            loss = tf.reduce_mean(tf.square(td_targets - predicted_values))
+            predicted_values = self.model(s, training=True)
+            loss = tf.reduce_mean(tf.square(t - predicted_values))
         gradients = tape.gradient(loss, self.model.trainable_variables)
         self.optimizer.apply_gradients(zip(gradients, self.model.trainable_variables))
         return float(loss.numpy())

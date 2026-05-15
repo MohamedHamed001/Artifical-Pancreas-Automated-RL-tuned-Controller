@@ -53,14 +53,51 @@ class EpisodeRecord:
         }
 
 
+def _probe_state_dim(actor_path: str) -> int:
+    """Read the first Dense kernel shape from an HDF5/h5 checkpoint.
+
+    Returns the input dimension (rows of the first kernel), or 19 as the
+    safe default if the file cannot be inspected.  This lets the rollout
+    always build an actor whose architecture matches the saved weights,
+    even when the observation space has been extended between training runs.
+    """
+    try:
+        import h5py  # ships with tensorflow; always available if TF is installed
+        with h5py.File(actor_path, "r") as f:
+            # Keras saves weights under 'layers/dense/vars/0' (Keras 3) or
+            # '_layer_checkpoint_dependencies/dense/vars/0' (legacy).
+            # Walk all datasets looking for the first 2-D one.
+            def _first_2d_shape(group):
+                for key in group:
+                    item = group[key]
+                    if hasattr(item, "shape") and len(item.shape) == 2:
+                        return item.shape  # (in_dim, out_dim)
+                    if hasattr(item, "keys"):
+                        result = _first_2d_shape(item)
+                        if result is not None:
+                            return result
+                return None
+
+            shape = _first_2d_shape(f)
+            if shape is not None:
+                return int(shape[0])
+    except Exception:
+        pass
+    return 19  # safe default for the new 19-D architecture
+
+
 def load_actor_from_checkpoints(
-    state_dim: int = 13,
+    state_dim: Optional[int] = None,   # None = auto-detect from checkpoint
     action_dim: int = 3,
     action_bound: float = 0.1,
     actor_filename: str = ACTOR_BEST,
     checkpoints_path: Optional[str | os.PathLike] = None,
 ):
     """Try to load the actor network from ``checkpoints/``.
+
+    The ``state_dim`` is **auto-detected from the checkpoint file** when not
+    supplied, so the actor architecture always matches the saved weights — even
+    after the observation space was extended (e.g. 16-D → 19-D).
 
     Returns the actor or ``None`` if the file is missing. The caller is
     responsible for handling the fallback (e.g. running the baseline
@@ -72,8 +109,13 @@ def load_actor_from_checkpoints(
     for actor_path in actor_load_candidates(actor_filename, ckpt_dir):
         if not os.path.exists(actor_path):
             continue
+
+        # Auto-detect the correct input dimension from the checkpoint file.
+        detected_dim = _probe_state_dim(actor_path)
+        resolved_dim = state_dim if state_dim is not None else detected_dim
+
         actor = DiabetesActor(
-            state_dim=state_dim,
+            state_dim=resolved_dim,
             action_dim=action_dim,
             action_bound=action_bound,
             learning_rate=1e-4,
@@ -120,7 +162,11 @@ def run_episode(
     done = False
     while not done and step < horizon:
         if use_rl:
-            action = actor.get_action(state)
+            # Handle state dimension mismatch (e.g. env returns 19-D but actor is 16-D)
+            # by truncating the state vector. This allows old models to run in the
+            # upgraded environment.
+            truncated_state = state[:actor.state_dim]
+            action = actor.get_action(truncated_state)
         else:
             action = np.zeros(env.action_space, dtype=np.float32)
 

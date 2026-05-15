@@ -81,9 +81,18 @@ def _demo_defaults() -> dict:
 
 
 @st.cache_resource(show_spinner=False)
-def _load_actor_cached() -> object | None:
-    """Cache the actor between reruns. ``None`` when no weights present."""
+def _load_actor_cached(mtime: float = 0.0) -> object | None:
+    """Cache the actor between reruns. ``None`` when no weights present.
+    The ``mtime`` argument ensures the cache is busted if the actor weights file changes on disk.
+    """
     return load_actor_from_checkpoints()
+
+def _get_actor_mtime() -> float:
+    try:
+        actor_path = checkpoints_dir() / ACTOR_BEST
+        return os.path.getmtime(actor_path)
+    except OSError:
+        return 0.0
 
 
 # ---------------------------------------------------------------------------
@@ -339,6 +348,9 @@ def _build_env(
         isf_override=profile.isf,
         # Skip random scenario reload to honour the injected schedules.
         test_case_id=None,
+        # Never cut the episode short in the demo — show the full 24-hour graph
+        # even when BGL crashes below 40 mg/dL.  Training mode keeps early-stop.
+        demo_mode=True,
     )
     env.set_meal_schedule(meals)
     env.set_exercise_schedule(exercise)
@@ -362,7 +374,8 @@ def run_demo_episode(
     env = _build_env(profile, meals, exercise, seed)
     actor = None
     if controller == "rl":
-        actor = _load_actor_cached()
+        mtime = _get_actor_mtime()
+        actor = _load_actor_cached(mtime)
         if actor is None:
             return None
     record = run_episode(
@@ -479,6 +492,7 @@ def main() -> None:
             step=1,
             help="Reproducible scenario picks + observation noise.",
         )
+
 
         st.header("Controllers")
         compare_mode = st.toggle("Compare RL vs Baseline PID", value=True)
@@ -619,11 +633,19 @@ def main() -> None:
 
         if compare_mode and rl_record is not None and rl_record.controller == "rl":
             st.subheader("Controller comparison")
+            # Cap to the shorter episode so both arrays have equal length.
+            # The RL episode can terminate early (glucose out-of-range done=True)
+            # producing fewer steps than the baseline's full horizon.
+            cmp_len = min(
+                len(baseline_record.times),
+                len(rl_record.glucose),
+                playback_idx,
+            )
             cmp_df = pd.DataFrame(
                 {
-                    "Time (min)": baseline_record.times[:playback_idx],
-                    "Baseline PID": baseline_record.glucose[:playback_idx],
-                    "RL-tuned": rl_record.glucose[:playback_idx],
+                    "Time (min)": baseline_record.times[:cmp_len],
+                    "Baseline PID": baseline_record.glucose[:cmp_len],
+                    "RL-tuned": rl_record.glucose[:cmp_len],
                 }
             ).set_index("Time (min)")
             st.line_chart(cmp_df)

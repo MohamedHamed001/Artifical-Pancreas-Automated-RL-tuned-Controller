@@ -1,27 +1,21 @@
 """Diabetes PID-tuning RL environment.
 
-Behaviour preserved verbatim from the legacy
-``RL_Diabetes_Controller/envs/diabetes_pid_env.py`` implementation:
-
-* 13-D observation vector.
-* 3-D action (delta_Kp, delta_Ki, delta_Kd) bounded to ``+-0.1``.
-* Identical reward shaping (target band, stability bonus, etc.).
-* PID + InsulinCalculator for meal bolus + correction, basal via PID
-  output negated and scaled.
-
-New (non-breaking) features added by the refactor:
-
-* Optional ``seed`` argument makes ``_load_random_test_case`` deterministic.
-* Optional ``observation_noise_std`` parameter adds Gaussian noise to the
-  reported BGL observation only (does **not** corrupt the true ODE state),
-  matching the "unstable" profile design.
-* Optional explicit ``test_case_id`` so the demo can pin a scenario.
-* ``run_episode`` helper-friendly: state shape and step semantics unchanged.
+Observation vector: 19-D (expanded from 16-D).
+New features vs legacy:
+  * ISF normalised, carb_ratio normalised, patient weight normalised
+    — agent now knows *which patient* it is treating, enabling
+    cross-profile generalisation without retraining.
+  * Clinical zone-based reward (asymmetric hypo/hyper penalties that
+    match real closed-loop system tuning guidelines).
+  * Rate-of-change (dBGL/dt) penalty prevents "riding" rapid excursions.
+  * IOB brake threshold is ISF-adaptive: fires earlier for sensitive patients.
+  * Basal rate calculation uses the actual patient weight, not a hardcoded 75 kg.
 """
 
 from __future__ import annotations
 
 import glob
+import math
 import os
 from typing import Optional
 
@@ -71,12 +65,25 @@ class DiabetesPIDEnv:
         test_case_id: Optional[int] = None,
         carb_ratio_override: Optional[float] = None,
         isf_override: Optional[float] = None,
+        demo_mode: bool = False,
     ) -> None:
         self.patient_params = patient_params
         self.patient_weight = patient_weight
+        # If a non-default weight was passed, preserve it across episode resets
+        # (don't let _get_body_weight_for_case overwrite it with TestCases.txt data).
+        self._initial_patient_weight = patient_weight
+        self._keep_patient_weight = (patient_weight != 75.0)
+        # In demo/rollout mode, severe BGL excursions do NOT terminate the episode.
+        # The simulation always runs to the full horizon so the app shows a complete
+        # 24-hour graph.  The penalty reward is still applied for diagnostic value.
+        self.demo_mode = demo_mode
         self.target_glucose = target_glucose
         self.patient: Optional[HovorkaPatient] = None
 
+        self.iob_units = 0.0   # Real-time estimate of insulin units active in body
+        self.max_episode_length = 1440
+        self.bolus_duration = 30  # minutes for immediate drip portion
+        
         if data_root is not None:
             self.test_data_dir = os.fspath(data_root)
         else:
@@ -115,7 +122,7 @@ class DiabetesPIDEnv:
         self.current_step = 0
         self.done = False
 
-        self.observation_space = 13
+        self.observation_space = 19   # expanded: +ISF, +carb_ratio, +weight
         self.action_space = 3
         self.action_bound = 0.1
 
@@ -126,6 +133,7 @@ class DiabetesPIDEnv:
         self.bolus_history: list[dict] = []
 
         self.previous_glucose = target_glucose
+        self.prev2_glucose = target_glucose       # for 2-min rate
         self.time_since_last_meal = 1440
         self.time_since_last_insulin = 1440
         self.total_episode_reward = 0.0
@@ -160,7 +168,8 @@ class DiabetesPIDEnv:
             self.test_data_dir, f"ExerciseData_case{selected_case}.data"
         )
 
-        self.patient_weight = self._get_body_weight_for_case(selected_case)
+        if not getattr(self, "_keep_patient_weight", False):
+            self.patient_weight = self._get_body_weight_for_case(selected_case)
         self.meal_data = self._parse_data_file(meal_file, "meal")
         self.exercise_data = self._parse_data_file(exercise_file, "exercise")
         self.current_case_id = selected_case
@@ -265,12 +274,14 @@ class DiabetesPIDEnv:
         self.current_step = 0
         self.done = False
         self.previous_glucose = self.target_glucose
+        self.prev2_glucose = self.target_glucose
         self.time_since_last_meal = 1440
         self.time_since_last_insulin = 1440
         self.total_episode_reward = 0.0
 
         self.bolus_remaining = 0.0
         self.bolus_rate = 0.0
+        self.iob_units = 0.0
 
         self.glucose_history = []
         self.insulin_history = []
@@ -292,8 +303,22 @@ class DiabetesPIDEnv:
         return float(bgl_truth)
 
     def _get_state(self) -> np.ndarray:
+        """Build 19-D observation vector.
+
+        Features 1–13: original legacy features (glucose, rate, error,
+        PID terms + gains, timing, exercise, circadian).
+        Features 14–16: anti-rage-bolus additions (rate-2, tail-bolus, IOB).
+        Features 17–19 (NEW): patient identity — ISF, carb_ratio, weight.
+            These tell the agent *how sensitive* the patient is so it can
+            calibrate its aggressiveness without seeing the patient profile
+            directly.  Normalised to roughly [0, 1]:
+            ISF   / 100  (typical range 20–80 mg/dL per U)
+            CR    / 20   (typical range 8–20 g/U)
+            BW    / 120  (typical range 50–110 kg)
+        """
         current_glucose = self._observe_glucose()
-        glucose_rate = current_glucose - self.previous_glucose
+        glucose_rate   = current_glucose - self.previous_glucose          # 1-min
+        glucose_rate_2 = (current_glucose - self.prev2_glucose) / 2.0    # 2-min avg
         error = self.target_glucose - current_glucose
 
         hour_of_day = (self.patient.time % 1440) / 60.0  # type: ignore[union-attr]
@@ -302,84 +327,172 @@ class DiabetesPIDEnv:
 
         exercise_status = self.patient._get_exercise_status(self.patient.time)  # type: ignore[union-attr]
 
+        # Bolus remaining normalised (10 U is a large bolus)
+        bolus_remaining_norm = min(self.insulin_calc.pending_tail_dose / 10.0, 1.0)
+
+        # IOB: Real Units On Board (normalised by 10 U)
+        iob_norm = float(np.clip(self.iob_units / 10.0, 0.0, 1.5))
+
+        # Patient identity features (normalised)
+        isf_norm    = float(np.clip(self.insulin_calc.isf / 100.0, 0.0, 1.5))
+        cr_norm     = float(np.clip(self.insulin_calc.carb_ratio / 20.0, 0.0, 1.5))
+        weight_norm = float(np.clip(self.patient_weight / 120.0, 0.0, 1.5))
+
         state = np.array(
             [
-                current_glucose / 400.0,
-                glucose_rate / 100.0,
-                error / 200.0,
-                self.pid.ITerm / 100.0,
-                self.pid.DTerm / 10.0,
-                self.pid.Kp,
-                self.pid.Ki,
-                self.pid.Kd,
-                min(self.time_since_last_meal / 240.0, 1.0),
-                min(self.time_since_last_insulin / 60.0, 1.0),
-                exercise_status,
-                time_sin,
-                time_cos,
+                current_glucose / 400.0,       # 1
+                glucose_rate / 100.0,           # 2
+                error / 200.0,                  # 3
+                self.pid.ITerm / 100.0,         # 4
+                self.pid.DTerm / 10.0,          # 5
+                self.pid.Kp / 10.0,             # 6 (Normalised 0.0-1.0)
+                self.pid.Ki,                    # 7
+                self.pid.Kd,                    # 8
+                min(self.time_since_last_meal / 240.0, 1.0),      # 9
+                min(self.time_since_last_insulin / 60.0, 1.0),    # 10
+                exercise_status,                # 11
+                time_sin,                       # 12
+                time_cos,                       # 13
+                glucose_rate_2 / 100.0,         # 14
+                bolus_remaining_norm,           # 15
+                iob_norm,                       # 16
+                # --- NEW patient-identity features ---
+                isf_norm,                       # 17
+                cr_norm,                        # 18
+                weight_norm,                    # 19
             ],
             dtype=np.float32,
         )
         return state
 
-    def _calculate_reward(self, glucose_mgdl: float, insulin_delivered: float) -> float:
-        """Original safety-first reward (unchanged)."""
+    def _calculate_reward(self, glucose_mgdl: float, glucose_diff: float, insulin_delivered: float) -> float:
+        """Clinical zone-model reward function.
+
+        Based on validated closed-loop AP tuning guidelines (Kovatchev et al.,
+        Diabetes Care 2009).  Zones and penalty asymmetry match clinical intent:
+
+        Zone A (70–180): primary comfort zone — Gaussian pull toward 100 mg/dL.
+        Zone B (54–70 / 180–250): early warning — linear penalties.
+        Zone C (<54 / >250): danger — quadratic+ penalties.
+        Zone D (<40): severe — episode termination.
+
+        Additional shaping:
+        - Rate-of-change penalty: prevents the agent from riding rapid excursions.
+        - Patient-adaptive IOB brake: threshold scales with the patient's ISF
+          so insulin-sensitive patients get protection at lower Kp values.
+        - Recovery bonus and stability bonus preserved from prior version.
+        """
+        # ----------------------------------------------------------------
+        # Termination safety cutoffs
+        # ----------------------------------------------------------------
+        if glucose_mgdl < 40:
+            if not self.demo_mode:
+                self.done = True
+            return -10000.0   # Catastrophic: must never be profitable to crash
+        elif glucose_mgdl > 500:
+            if not self.demo_mode:
+                self.done = True
+            return -3000.0
+
         reward = 0.0
 
-        if glucose_mgdl < 40:
-            reward = -500
-            self.done = True
-        elif glucose_mgdl > 300:
-            reward = -500
-            self.done = True
-        elif glucose_mgdl < 50:
-            reward = -200 - (50 - glucose_mgdl) * 10
-        elif glucose_mgdl > 250:
-            reward = -200 - (glucose_mgdl - 250) * 2
-        elif 80 <= glucose_mgdl <= 140:
-            if 90 <= glucose_mgdl <= 120:
-                reward = 20
-            else:
-                reward = 15
-        elif 70 <= glucose_mgdl < 80 or 140 < glucose_mgdl <= 180:
-            reward = 5
-        elif glucose_mgdl < 70:
-            reward = -15 - (70 - glucose_mgdl) * 0.8
-        elif glucose_mgdl > 180:
-            reward = -10 - (glucose_mgdl - 180) * 0.15
+        # ----------------------------------------------------------------
+        # 1. ZONE MODEL (primary signal)
+        # Asymmetry: hypo is ~3x worse than equivalent hyper (clinical consensus).
+        # ----------------------------------------------------------------
+        if 70.0 <= glucose_mgdl <= 180.0:
+            # TIR zone — Gaussian centred on 100 mg/dL (not 120) to pull
+            # the agent toward the lower-normal sweet spot while staying safe.
+            distance = abs(glucose_mgdl - 100.0)
+            reward += 50.0 * math.exp(-(distance ** 2) / (2 * 35.0 ** 2))
 
-        glucose_rate = glucose_mgdl - self.previous_glucose
-        if abs(glucose_rate) <= 5:
-            reward += 3
-        elif abs(glucose_rate) <= 10:
-            reward += 1
-        elif abs(glucose_rate) > 20:
-            reward -= abs(glucose_rate) * 0.2
+        elif 54.0 <= glucose_mgdl < 70.0:
+            # Zone B hypo: linear penalty, starts mild
+            undershoot = 70.0 - glucose_mgdl
+            reward -= undershoot * 4.0       # up to -64 at BGL=54
 
-        if hasattr(self, "consecutive_in_range"):
-            if 70 <= glucose_mgdl <= 180:
-                self.consecutive_in_range += 1
-                if self.consecutive_in_range >= 60:
-                    reward += 5
-            else:
-                self.consecutive_in_range = 0
-        else:
-            self.consecutive_in_range = 1 if 70 <= glucose_mgdl <= 180 else 0
+        elif glucose_mgdl < 54.0:
+            # Zone C/D hypo: quadratic — gets dangerous fast
+            undershoot = 70.0 - glucose_mgdl
+            reward -= (undershoot ** 2) * 1.5
 
-        if insulin_delivered > 10:
-            reward -= (insulin_delivered - 10) * 0.8
+        elif 180.0 < glucose_mgdl <= 250.0:
+            # Zone B hyper: linear penalty
+            overshoot = glucose_mgdl - 180.0
+            reward -= overshoot * 1.2        # up to -84 at BGL=250
 
-        kp_change = abs(self.pid.Kp - getattr(self, "prev_kp", self.pid.Kp))
-        ki_change = abs(self.pid.Ki - getattr(self, "prev_ki", self.pid.Ki))
-        kd_change = abs(self.pid.Kd - getattr(self, "prev_kd", self.pid.Kd))
-        if kp_change + ki_change + kd_change < 0.1:
-            reward += 1
+        elif glucose_mgdl > 250.0:
+            # Zone C hyper: quadratic
+            overshoot = glucose_mgdl - 180.0
+            reward -= (overshoot ** 1.8) * 0.15
 
-        self.prev_kp = self.pid.Kp
-        self.prev_ki = self.pid.Ki
-        self.prev_kd = self.pid.Kd
+        # ----------------------------------------------------------------
+        # 2. RATE-OF-CHANGE PENALTY
+        # A healthy pancreas never lets BGL move faster than ±2 mg/dL/min.
+        # Penalise rapid excursions in either direction.
+        # ----------------------------------------------------------------
+        abs_rate = abs(glucose_diff)
+        if abs_rate > 3.0:
+            reward -= (abs_rate - 3.0) ** 2 * 2.0
+        elif abs_rate > 2.0:
+            reward -= (abs_rate - 2.0) * 1.5
 
-        return reward
+        # ----------------------------------------------------------------
+        # 3. PROACTIVE IOB BRAKE (Anti-Rage Bolus)
+        # ----------------------------------------------------------------
+        iob = self.iob_units
+        isf = self.insulin_calc.isf
+        kp_brake_threshold = max(0.8, isf / 40.0)
+        
+        # Penalise high gain if we already have significant insulin active.
+        # This now triggers even during the rise if IOB is excessive,
+        # preventing the 'integrator windup' of the Kp gain.
+        if iob > 1.5 and self.pid.Kp > kp_brake_threshold:
+            excess_kp = self.pid.Kp - kp_brake_threshold
+            reward -= (excess_kp * iob) * 20.0  # Increased penalty
+        
+        # Additional brake: if BGL is already falling and we still have high gain
+        if glucose_diff < -0.2 and iob > 0.5 and self.pid.Kp > kp_brake_threshold:
+            reward -= (self.pid.Kp - kp_brake_threshold) * 50.0
+
+        # ----------------------------------------------------------------
+        # 4. RECOVERY & STABILITY
+        # ----------------------------------------------------------------
+        # Reward controlled descent from hyperglycemia (not a free-fall crash)
+        if glucose_mgdl > 200 and -4.0 < glucose_diff < -0.5:
+            reward += 8.0
+
+        # Note: 'Proactive anticipation bonus' removed. It was a perverse 
+        # incentive that encouraged the agent to ramp Kp regardless of risk.
+
+        # ----------------------------------------------------------------
+        # 5. STABILITY BONUS
+        # ----------------------------------------------------------------
+        if abs(glucose_diff) <= 1.5:
+            reward += 8.0   # increased: strongly reward steady-state behaviour
+        elif abs(glucose_diff) <= 3.0:
+            reward += 3.0
+
+        return float(reward)
+
+    def _safety_clamp(self, basal_rate: float, glucose: float, glucose_rate: float) -> float:
+        """Rule-based safety layer: suspend or reduce basal on hypoglycemia risk.
+
+        This is a hard constraint applied on top of the RL/PID output and
+        cannot be over-ridden by the agent.
+        """
+        # Hard suspend: confirmed or imminent severe hypo
+        if glucose < 70:
+            return 0.0
+        if glucose < 80 and glucose_rate < -1.5:
+            return 0.0          # predictive suspension (falling fast)
+        # Significant reduction during descent toward hypo
+        if glucose < 90 and glucose_rate < -1.0:
+            return basal_rate * 0.3
+        # Mild reduction if drifting down from marginal range
+        if glucose < 100 and glucose_rate < -0.5:
+            return basal_rate * 0.6
+        return basal_rate
 
     def _handle_meal_bolus(self) -> float:
         current_meal = self.patient._get_meal_intake(self.patient.time)  # type: ignore[union-attr]
@@ -393,8 +506,10 @@ class DiabetesPIDEnv:
                 target_glucose_mgdl=self.target_glucose,
             )
             if bolus_result["delivered"]:
-                self.bolus_remaining = bolus_result["total_dose"]
-                self.bolus_rate = self.bolus_remaining / self.bolus_duration * 60
+                # Use IMMEDIATE portion only; tail drips via drain_tail_dose()
+                immediate = bolus_result["immediate_dose"]
+                self.bolus_remaining = immediate
+                self.bolus_rate = (immediate / self.bolus_duration) * 60
                 self.time_since_last_meal = 0
                 self.time_since_last_insulin = 0
 
@@ -405,27 +520,40 @@ class DiabetesPIDEnv:
                         "bolus_dose": bolus_result["bolus_dose"],
                         "correction_dose": bolus_result["correction_dose"],
                         "total_dose": bolus_result["total_dose"],
+                        "immediate_dose": bolus_result["immediate_dose"],
+                        "tail_dose": bolus_result["tail_dose"],
                     }
                 )
                 return self.bolus_rate
         return 0.0
 
     def _get_bolus_insulin(self) -> float:
+        """Return this-minute bolus delivery (U/h): immediate drip + tail drip."""
+        immediate_rate = 0.0
         if self.bolus_remaining > 0:
             bolus_this_minute = min(self.bolus_remaining, self.bolus_rate / 60)
             self.bolus_remaining -= bolus_this_minute
-            return bolus_this_minute * 60
-        return 0.0
+            immediate_rate = bolus_this_minute * 60
+        # Tail drip from InsulinCalculator (already returns U/h)
+        tail_rate = self.insulin_calc.drain_tail_dose()
+        return immediate_rate + tail_rate
 
     def step(self, action: np.ndarray) -> tuple[np.ndarray, float, bool, dict]:
         """Apply ``(dKp, dKi, dKd)``, advance the simulator, return ``(obs, r, done, info)``."""
         delta_kp, delta_ki, delta_kd = action
 
-        self.pid.Kp = float(np.clip(self.pid.Kp + delta_kp, 0.01, 2.0))
-        self.pid.Ki = float(np.clip(self.pid.Ki + delta_ki, 0.0, 0.01))
-        self.pid.Kd = float(np.clip(self.pid.Kd + delta_kd, 0.0, 0.1))
+        # Scale the deltas to prevent erratic jumping. 
+        # Reducing Kp scaling from 0.5 to 0.2 to prevent "rage bolusing" oscillations
+        delta_kp *= 0.2
+        delta_ki *= 0.1
+        delta_kd *= 0.1
+
+        self.pid.Kp = float(np.clip(self.pid.Kp + delta_kp, 0.01, 10.0))
+        self.pid.Ki = float(np.clip(self.pid.Ki + delta_ki, 0.0, 1.0))
+        self.pid.Kd = float(np.clip(self.pid.Kd + delta_kd, 0.0, 1.0))
 
         current_glucose = self.patient.G * 18.0182  # type: ignore[union-attr]
+        glucose_rate    = current_glucose - self.previous_glucose
 
         _ = self._handle_meal_bolus()
         bolus_rate = self._get_bolus_insulin()
@@ -433,26 +561,44 @@ class DiabetesPIDEnv:
         if bolus_rate > 0:
             basal_rate = 0.5
         else:
-            self.pid.SetPoint = self.target_glucose
-            self.pid.update(current_glucose)
+            # --- Asymmetric PID anti-windup: freeze ITerm during descent ---
+            if current_glucose < 80 and glucose_rate < 0:
+                # Prevent integral from accumulating insulin during hypoglycemia
+                saved_iterm = self.pid.ITerm
+                self.pid.SetPoint = self.target_glucose
+                self.pid.update(current_glucose)
+                self.pid.ITerm = saved_iterm   # restore — no windup during hypo
+            else:
+                self.pid.SetPoint = self.target_glucose
+                self.pid.update(current_glucose)
 
-            patient_weight = 75
-            estimated_tdd = patient_weight * 0.55
-            base_basal_rate = estimated_tdd * 0.5 / 24
+            # Use actual patient weight, not a hardcoded 75 kg.
+            # TDI ≈ 0.55 U/kg/day; basal ≈ 50% of TDI split across 24 h.
+            estimated_tdd = self.patient_weight * 0.55
+            base_basal_rate = estimated_tdd * 0.5 / 24.0
             pid_adjustment = -self.pid.output * 0.01
             basal_rate = float(np.clip(base_basal_rate + pid_adjustment, 0.0, 10.0))
 
+        # --- Safety clamp (hard constraint, cannot be over-ridden by RL) ---
+        basal_rate = self._safety_clamp(basal_rate, current_glucose, glucose_rate)
+
         total_insulin_rate = basal_rate + bolus_rate
 
+        # Advance glucose history (keep prev2 for 2-min rate in _get_state)
+        self.prev2_glucose = self.previous_glucose
         self.previous_glucose = current_glucose
         new_glucose = self.patient.step(total_insulin_rate)  # type: ignore[union-attr]
+
+        # Update real-time IOB estimate (Units On Board)
+        # 45-min half-life => ~0.985 decay per minute.
+        self.iob_units = (self.iob_units * 0.985) + (total_insulin_rate / 60.0)
 
         self.time_since_last_meal += 1
         self.time_since_last_insulin += 1
         if total_insulin_rate > 0:
             self.time_since_last_insulin = 0
 
-        reward = self._calculate_reward(new_glucose, total_insulin_rate)
+        reward = self._calculate_reward(new_glucose, new_glucose - current_glucose, total_insulin_rate)
         self.total_episode_reward += reward
 
         self.current_step += 1
