@@ -1,5 +1,148 @@
 # Artificial Pancreas RL Controller Implementation Roadmap
 
+## Implementation Status Snapshot - 2026-05-15
+
+This section reflects the current repository state as checked against the roadmap. Status labels are:
+
+- `Done`: implemented and present in the repo.
+- `Partial`: some code exists, but the roadmap intent is not fully met.
+- `Not Done`: missing, still on the legacy path, or contradicted by current code/tests.
+
+### Overall Status
+
+- `Partial`: the repo now contains a real modular stack under `core/`, `simulation/`, `controllers/`, `envs/`, and `runtime/`, including a new patient model, safety layer, observation builder, and simulation runner.
+- `Not Done`: the legacy `DiabetesPIDEnv` path still remains the primary runtime/training/UI path.
+- `Partial`: several roadmap replacements were added, but old and new architecture layers still coexist with incomplete compatibility boundaries.
+- `Done`: the current test suite is green on the current working tree. On recheck, `pytest` reported `43 passed`.
+- `Not Done`: there is still no standalone backend/API service, database layer, schema contract layer, or authentication flow; the current product surface is a local Streamlit app over in-process simulation code.
+
+### Phase-by-Phase Status
+
+#### Phase 0 - Repository Cleanup and Baseline Capture
+
+- `Done`: baseline notes exist in `docs/current-system-notes.md`.
+- `Done`: baseline capture artifact exists in `baseline_capture.json`.
+- `Done`: smoke rollout script exists in `scripts/smoke_baseline_rollout.py`.
+- `Partial`: baseline capture was done, and the smoke rollout now works again, but parity and architecture-consistency validation are still incomplete.
+- `Done`: the smoke rollout command currently succeeds on the working tree.
+
+#### Phase 1 - Core Simulation Stabilization
+
+- `Done`: `HovorkaPatient` now supports in-memory meal/exercise injection through `set_meal_data()` and `set_exercise_data()`.
+- `Done`: the roadmap target module split now exists in part through `src/ap_rl/simulation/hovorka.py`, `src/ap_rl/simulation/integrators.py`, and `src/ap_rl/simulation/patient.py`.
+- `Partial`: temp-file based reset logic was removed from `DiabetesPIDEnv.reset()`, but the legacy environment is still the main orchestration path.
+- `Partial`: the modular runner uses array-based scenario lookup, but the legacy compatibility wrapper still uses exact timestamp equality on dataframe-backed events.
+- `Not Done`: golden/reference Hovorka validation tests were not added.
+- `Partial`: non-negativity guards exist in `simulation/hovorka.py`, but only as post-step clamping rather than the more rigorous sub-step guard/validation flow described in the roadmap.
+
+#### Phase 2 - Safety Supervisor and Insulin Accounting
+
+- `Done`: a controller-layer `SafetySupervisor` now exists in `src/ap_rl/controllers/safety.py`.
+- `Partial`: the new safety layer is integrated into `SimulationRunner`, but older environment/module paths still reference legacy safety implementations or stale contracts.
+- `Partial`: total-insulin safety integration exists in the modular runner via `InsulinCommand` and `SafetyDecision`, but the overall architecture still has parallel legacy/non-modular safety paths.
+- `Not Done`: IOB still uses a simple exponential estimate in `DiabetesPIDEnv`, which the roadmap explicitly intended to replace.
+- `Partial`: structured safety decisions are implemented in `core.types.SafetyDecision`, but downstream logging and broad consumer adoption are incomplete.
+- `Not Done`: comprehensive safety unit/property tests were not added.
+
+#### Phase 3 - Controller Abstraction and Safe PID Baseline
+
+- `Partial`: a controller protocol exists in `src/ap_rl/controllers/base.py`.
+- `Partial`: `PIDController`, `SupervisoryController`, and `GlucoseMPC` exist under `src/ap_rl/controllers/`.
+- `Partial`: the PID controller layer now produces direct insulin actions, but it still relies on legacy PID math and legacy scaling instead of the fully reworked safe discrete-time design described in the roadmap.
+- `Partial`: the roadmap replacement file intent was achieved functionally, but using `pid_controller.py` and `mpc_controller.py` instead of `pid.py` and `mpc.py`.
+- `Not Done`: `BasalOnlyController` and oracle/debug controller variants were not added.
+- `Partial`: the new controller layer participates in the modular runner path, but the full runtime/training/app surface is not consistently routed through it.
+
+#### Phase 4 - Simulation Runner and Step Records
+
+- `Done`: `src/ap_rl/simulation/simulator.py` exists and includes `SimulationConfig` and `SimulationRunner`.
+- `Done`: `src/ap_rl/core/records.py` exists with `StepRecord` and `EpisodeRecord`.
+- `Partial`: this runner is present and is now referenced by `DiabetesPIDEnv`, `runtime/rollout.py`, and the Streamlit app path, but those integrations are not stable end to end.
+- `Partial`: top-level TensorFlow imports were reduced in some places via lazy import.
+- `Partial`: both a typed core record model and compatibility record surface now exist, but duplication between `core.types` and `core.records` still indicates an unsettled contract.
+- `Partial`: compatibility with the current Streamlit app improved because `EpisodeRecord` now provides compatibility accessors, but the app still has core datamodel mismatches elsewhere.
+
+#### Phase 5 - Gymnasium Environment Redesign
+
+- `Done`: `src/ap_rl/environments/glucose_control_env.py` exists.
+- `Done`: `src/ap_rl/environments/supervisory_env.py` exists.
+- `Partial`: these envs are present, but the old PID-delta env remains the primary training path.
+- `Done`: the optional legacy `hovorka_gym_env.py` path was removed from the active tree.
+- `Not Done`: deterministic sampling, normalization wrappers, and the full redesign scope are not complete.
+- `Partial`: `src/ap_rl/environments/wrappers.py` exists, but the wrappers are minimal, untracked by tests, and not wired into training/evaluation flows.
+
+#### Phase 6 - Clinical Reward, Observation, and Action Specification
+
+- `Done`: `src/ap_rl/rewards/clinical.py` exists.
+- `Partial`: `GlucoseControlEnv` uses `ClinicalReward`, but the legacy env still uses the old reward logic.
+- `Not Done`: the legacy reward still contains catastrophic spikes such as `-10000`.
+- `Not Done`: the old target mismatch remains in the legacy path (`reward` centered near 100 mg/dL while controller target remains 120 mg/dL).
+- `Not Done`: the roadmap requirement to remove PID-delta as the main action space was not achieved.
+
+#### Phase 7 - Metrics Engine and Evaluation Harness
+
+- `Partial`: `src/ap_rl/evaluation/metrics.py` exists and provides summary metrics.
+- `Not Done`: the evaluation harness, Monte Carlo evaluator, comparison tooling, stress suites, and CLI were not added.
+- `Not Done`: the metric contract is unstable right now; current tests fail because expected key names do not match returned keys.
+
+#### Phase 8 - Training Infrastructure and Reproducibility
+
+- `Partial`: `train_a2c.py` was consolidated into one entrypoint with presets.
+- `Partial`: TensorFlow import was made lazy inside training entry.
+- `Not Done`: the roadmap explicitly required removing monkey-patched training logic, but `train_a2c.py` still monkey-patches `agent.train`.
+- `Not Done`: training still depends on `DiabetesPIDEnv` rather than the redesigned environments.
+- `Not Done`: seeded local RNG replacement is incomplete; global `np.random.normal()` use remains in training.
+- `Not Done`: the trainer abstraction and experiment directory format described in the roadmap were not added.
+- `Partial`: seeding utilities exist and are used in several paths, but reproducibility is still split between global RNG seeding, per-env generators, and ad hoc training-time random sources.
+
+#### Phase 9 - MPC Primary Controller
+
+- `Partial`: `src/ap_rl/controllers/mpc_controller.py` exists.
+- `Not Done`: the current MPC is a placeholder toy linear model, not the planned primary constrained controller tied to the simulator and safety stack.
+- `Not Done`: solver fallback, MPC config, and dedicated MPC tests were not implemented as specified.
+- `Done`: `cvxpy` is now declared in both `pyproject.toml` and `requirements.txt`.
+
+#### Phase 10 - Hybrid MPC+RL Supervisor
+
+- `Not Done`: no `rl_supervisor.py`.
+- `Not Done`: no `hybrid.py`.
+- `Not Done`: no implemented hybrid supervisory control path.
+
+#### Phase 11 - Scenario Generation and Population Modeling
+
+- `Partial`: there is some patient/profile variability support in training and existing scenario builders.
+- `Not Done`: no `src/ap_rl/simulation/scenario.py`.
+- `Not Done`: no `configs/scenarios/` catalog matching the roadmap.
+- `Not Done`: no explicit deterministic scenario schema/sampler implementation matching the target design.
+
+#### Phase 12 - UI and Backend Rewrite
+
+- `Not Done`: no `src/ap_rl/app/server.py`.
+- `Not Done`: no `src/ap_rl/app/schemas.py`.
+- `Not Done`: the Streamlit app still imports `DiabetesPIDEnv` directly and still uses `env._skip_reload`.
+- `Not Done`: playback/backend separation, comparison mode, synchronized overlays, and validation APIs were not implemented per the roadmap.
+
+### Legacy Modules / Delete Candidates Status
+
+- `Done`: `src/ap_rl/envs/hovorka_gym_env.py` has been removed from the active tree.
+- `Not Done`: `docs/legacy-pid-tuner/` still exists.
+- `Not Done`: `TestCaseManager/` still exists.
+- `Not Done`: `verify_best_model.py` still exists.
+- `Partial`: temp-file reset behavior was removed from the main env reset path.
+- `Partial`: `_skip_reload` remains in active use by scripts and tests, though it no longer appears to be used by the Streamlit app path.
+
+### Current Blocking Gaps
+
+The items below are the main reasons this roadmap should still be considered in progress:
+
+1. Legacy `DiabetesPIDEnv` remains the primary environment for training and UI.
+2. Safety integration is currently inconsistent and breaks part of the legacy env path.
+3. The new controller layer is mostly scaffolding, not a complete replacement.
+4. Evaluation/training/backend phases were only partially started.
+5. Planned deletions and deprecations were not completed.
+6. The Streamlit app and current core datamodel are not fully aligned.
+7. Parity / zero-drift validation is still not passing.
+
 Source material: every file in `CodeReview/` was read and synthesized:
 
 - `CodeReview/AUDIT_REPORT.md`
@@ -3624,4 +3767,3 @@ The rebuild is acceptable when:
 - Same seed and config reproduce the same trajectory.
 - UI consumes backend records and does not monkey-patch simulator internals.
 - Legacy code is either deleted or clearly isolated.
-

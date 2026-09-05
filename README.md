@@ -1,11 +1,17 @@
 # Artificial Pancreas — RL-tuned PID Digital Twin
 
+> [!WARNING]
+> `refactor/modular-architecture` is an in-progress development baseline, not a
+> production or clinical release. The Streamlit interface is deprecated and
+> will be replaced by a custom frontend after the simulator and service
+> contracts stabilize. Several sections below still describe the legacy
+> architecture; see [`docs/phase-0-baseline.md`](docs/phase-0-baseline.md) for
+> the verified branch status and known blockers.
+
 > Synthetic Type-1 Diabetes simulator with a Reinforcement-Learning-tuned
 > PID controller, a digital-twin Streamlit demo, and publication-quality
 > plotting helpers. **Research / engineering demo only — not a medical
 > device, not clinically validated.**
-
-![Controller comparison preview](check.patientModel_RL.png)
 
 ## Highlights
 

@@ -1,77 +1,36 @@
 """Single-episode rollout helper.
 
 This module is intentionally framework-agnostic: no Streamlit, no TF
-imports unless ``controller='rl'`` is requested. The demo and the smoke
-scripts both call :func:`run_episode`.
+imports at top level. The demo and the smoke scripts both call :func:`run_episode`.
 """
 
 from __future__ import annotations
 
 import os
-from dataclasses import dataclass, field
-from typing import Optional
+from typing import Optional, Union, Any
 
 import numpy as np
 
-from ap_rl.agents.diabetes_a2c_actor import DiabetesActor
 from ap_rl.envs import DiabetesPIDEnv
+from ap_rl.controllers.base import Controller
+from ap_rl.controllers.pid_controller import PIDController
 from ap_rl.utils.checkpoint_filenames import ACTOR_BEST, actor_load_candidates
 from ap_rl.utils.paths import checkpoints_dir
-
-
-@dataclass
-class EpisodeRecord:
-    """Compact record of a finished episode for plotting / metrics."""
-
-    times: list[float] = field(default_factory=list)
-    glucose: list[float] = field(default_factory=list)
-    insulin: list[float] = field(default_factory=list)
-    basal: list[float] = field(default_factory=list)
-    bolus: list[float] = field(default_factory=list)
-    Kp: list[float] = field(default_factory=list)
-    Ki: list[float] = field(default_factory=list)
-    Kd: list[float] = field(default_factory=list)
-    rewards: list[float] = field(default_factory=list)
-    meals: list[dict] = field(default_factory=list)
-    exercise: list[dict] = field(default_factory=list)
-    stats: dict = field(default_factory=dict)
-    controller: str = "baseline"
-    target_glucose: float = 120.0
-
-    def as_arrays(self):
-        """Convert lists to numpy arrays for vectorised plotting."""
-        return {
-            "times": np.asarray(self.times),
-            "glucose": np.asarray(self.glucose),
-            "insulin": np.asarray(self.insulin),
-            "basal": np.asarray(self.basal),
-            "bolus": np.asarray(self.bolus),
-            "Kp": np.asarray(self.Kp),
-            "Ki": np.asarray(self.Ki),
-            "Kd": np.asarray(self.Kd),
-            "rewards": np.asarray(self.rewards),
-        }
+from ap_rl.core.records import StepRecord, EpisodeRecord
+from ap_rl.simulation.simulator import SimulationRunner, SimulationConfig
+from ap_rl.core.types import PatientConfig
 
 
 def _probe_state_dim(actor_path: str) -> int:
-    """Read the first Dense kernel shape from an HDF5/h5 checkpoint.
-
-    Returns the input dimension (rows of the first kernel), or 19 as the
-    safe default if the file cannot be inspected.  This lets the rollout
-    always build an actor whose architecture matches the saved weights,
-    even when the observation space has been extended between training runs.
-    """
+    """Read the first Dense kernel shape from an HDF5/h5 checkpoint."""
     try:
         import h5py  # ships with tensorflow; always available if TF is installed
         with h5py.File(actor_path, "r") as f:
-            # Keras saves weights under 'layers/dense/vars/0' (Keras 3) or
-            # '_layer_checkpoint_dependencies/dense/vars/0' (legacy).
-            # Walk all datasets looking for the first 2-D one.
             def _first_2d_shape(group):
                 for key in group:
                     item = group[key]
                     if hasattr(item, "shape") and len(item.shape) == 2:
-                        return item.shape  # (in_dim, out_dim)
+                        return item.shape
                     if hasattr(item, "keys"):
                         result = _first_2d_shape(item)
                         if result is not None:
@@ -87,22 +46,16 @@ def _probe_state_dim(actor_path: str) -> int:
 
 
 def load_actor_from_checkpoints(
-    state_dim: Optional[int] = None,   # None = auto-detect from checkpoint
+    state_dim: Optional[int] = None,
     action_dim: int = 3,
     action_bound: float = 0.1,
     actor_filename: str = ACTOR_BEST,
     checkpoints_path: Optional[str | os.PathLike] = None,
 ):
-    """Try to load the actor network from ``checkpoints/``.
+    """Try to load the actor network from ``checkpoints/``."""
+    # Lazy import to avoid TF dependency for baseline runs
+    from ap_rl.agents.diabetes_a2c_actor import DiabetesActor
 
-    The ``state_dim`` is **auto-detected from the checkpoint file** when not
-    supplied, so the actor architecture always matches the saved weights — even
-    after the observation space was extended (e.g. 16-D → 19-D).
-
-    Returns the actor or ``None`` if the file is missing. The caller is
-    responsible for handling the fallback (e.g. running the baseline
-    controller instead).
-    """
     ckpt_dir = (
         os.fspath(checkpoints_path) if checkpoints_path is not None else os.fspath(checkpoints_dir())
     )
@@ -110,7 +63,6 @@ def load_actor_from_checkpoints(
         if not os.path.exists(actor_path):
             continue
 
-        # Auto-detect the correct input dimension from the checkpoint file.
         detected_dim = _probe_state_dim(actor_path)
         resolved_dim = state_dim if state_dim is not None else detected_dim
 
@@ -125,63 +77,119 @@ def load_actor_from_checkpoints(
     return None
 
 
+class ZeroTuner(Controller):
+    """A controller that returns zero adjustments (for baseline tuning runs)."""
+    def get_action(self, state: np.ndarray, info: Optional[Dict[str, Any]] = None) -> np.ndarray:
+        return np.array([0.0, 0.0, 0.0], dtype=np.float32)
+    def reset(self): pass
+    def update(self, reward: float, done: bool) -> None: pass
+
 def run_episode(
     env: DiabetesPIDEnv,
-    controller: str = "baseline",
+    controller: Union[Controller, str] = "baseline",
     max_steps: Optional[int] = None,
-    actor=None,
+    actor: Optional[Any] = None,
     seed: Optional[int] = None,
 ) -> EpisodeRecord:
-    """Run a single episode and return an :class:`EpisodeRecord`.
-
-    Args:
-        env: A :class:`DiabetesPIDEnv` instance. Reset internally.
-        controller: ``"baseline"`` (zero-delta PID) or ``"rl"`` (use the
-            supplied ``actor``). Baseline never imports TF.
-        max_steps: optional override for ``env.max_episode_length``.
-        actor: optional preloaded actor for ``controller="rl"``. If
-            ``None`` and RL requested, falls back to baseline.
-        seed: optional seed forwarded to the env before reset.
-
-    Returns:
-        Populated :class:`EpisodeRecord`.
+    """
+    Run a single simulation episode.
     """
     if seed is not None:
         env.seed(seed)
 
-    state = env.reset()
-    record = EpisodeRecord(controller=controller, target_glucose=env.target_glucose)
-    record.meals = list(env.meal_data)
-    record.exercise = list(env.exercise_data)
+    state_tuple = env.reset()
+    state = state_tuple[0] if isinstance(state_tuple, tuple) else state_tuple
+
+    # Initialize record
+    record = EpisodeRecord(
+        controller_name=str(controller),
+        target_glucose=env.target_glucose,
+        meals=list(env.meal_data) if hasattr(env, "meal_data") else [],
+        exercise=list(env.exercise_data) if hasattr(env, "exercise_data") else []
+    )
 
     horizon = max_steps if max_steps is not None else env.max_episode_length
 
-    use_rl = controller == "rl" and actor is not None
-
-    step = 0
-    done = False
-    while not done and step < horizon:
-        if use_rl:
-            # Handle state dimension mismatch (e.g. env returns 19-D but actor is 16-D)
-            # by truncating the state vector. This allows old models to run in the
-            # upgraded environment.
-            truncated_state = state[:actor.state_dim]
-            action = actor.get_action(truncated_state)
+    # Legacy controller wrapping
+    if isinstance(controller, str):
+        if controller == "rl" and actor is not None:
+            active_controller = actor
+        elif controller == "baseline" and isinstance(env, DiabetesPIDEnv):
+            active_controller = ZeroTuner()
         else:
-            action = np.zeros(env.action_space, dtype=np.float32)
+            active_controller = PIDController(
+                target_mgdl=env.target_glucose,
+                basal_u_h=env.patient.basal_rate_uh,
+                Kp=env.pid.Kp,
+                Ki=env.pid.Ki,
+                Kd=env.pid.Kd
+            )
+    else:
+        active_controller = controller
 
-        state, reward, done, info = env.step(action)
+    active_controller.reset()
+    step_idx = 0
+    done = False
+    info = {}
 
-        record.times.append(env.patient.time)  # type: ignore[union-attr]
-        record.glucose.append(info["glucose"])
-        record.insulin.append(info["total_insulin"])
-        record.basal.append(info["basal_insulin"])
-        record.bolus.append(info["bolus_insulin"])
-        record.Kp.append(info["Kp"])
-        record.Ki.append(info["Ki"])
-        record.Kd.append(info["Kd"])
-        record.rewards.append(reward)
-        step += 1
+    while not done and step_idx < horizon:
+        state_to_use = state
+        if hasattr(active_controller, "state_dim"):
+            state_to_use = state[:active_controller.state_dim]
 
-    record.stats = env.get_statistics()
+        action = active_controller.get_action(state_to_use, info)
+
+        step_res = env.step(action)
+        if len(step_res) == 5:
+            state, reward, terminated, truncated, info = step_res
+            done = terminated or truncated
+        else:
+            state, reward, done, info = step_res
+        active_controller.update(reward, done)
+
+        # Create StepRecord
+        s_record = StepRecord(
+            time=float(env.patient.time),
+            true_glucose=float(info["glucose"]),
+            observed_glucose=float(info["glucose"]),
+            requested_insulin=float(info.get("requested_insulin", info["total_insulin"])),
+            delivered_insulin=float(info["total_insulin"]),
+            basal=float(info["basal_insulin"]),
+            bolus=float(info["bolus_insulin"]),
+            iob=float(info.get("iob", 0.0)),
+            cob=float(info.get("cob", 0.0)),
+            Kp=float(info["Kp"]),
+            Ki=float(info["Ki"]),
+            Kd=float(info["Kd"]),
+            reward=float(reward),
+            safety_events=info.get("safety_events", [])
+        )
+        record.steps.append(s_record)
+        step_idx += 1
+
+    record.total_reward = sum(s.reward for s in record.steps)
+    record.metadata["stats"] = env.get_statistics()
     return record
+
+
+def run_simulation(
+    patient_config: PatientConfig,
+    controller: Controller,
+    meals: List[Dict[str, Any]],
+    exercise: List[Dict[str, Any]],
+    duration_min: int = 1440,
+    dt_min: int = 5
+) -> EpisodeRecord:
+    """
+    Run a simulation using the modular SimulationRunner.
+    """
+    config = SimulationConfig(
+        patient_config=patient_config,
+        controller=controller,
+        duration_min=duration_min,
+        dt_min=dt_min,
+        target_glucose_mgdl=patient_config.params.get("G_target", 120.0),
+        basal_rate_u_h=patient_config.params.get("U_basal", 1.0)
+    )
+    runner = SimulationRunner(config)
+    return runner.run(meal_data=meals, exercise_data=exercise)

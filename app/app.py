@@ -38,8 +38,11 @@ from ap_rl.envs.scenario_builder import build_scenario
 from ap_rl.runtime.rollout import (
     EpisodeRecord,
     load_actor_from_checkpoints,
-    run_episode,
+    run_simulation,
 )
+from ap_rl.controllers.pid_controller import PIDController, SupervisoryController
+from ap_rl.core.types import PatientConfig
+from ap_rl.evaluation.metrics import glucose_trajectory_summary
 from ap_rl.utils.config import load_yaml
 from ap_rl.utils.checkpoint_filenames import ACTOR_BEST
 from ap_rl.utils.paths import checkpoints_dir, configs_dir
@@ -332,31 +335,12 @@ def build_glucose_insulin_twin_figure(
 # ---------------------------------------------------------------------------
 
 
-def _build_env(
-    profile: PatientProfile,
-    meals: list[dict],
-    exercise: list[dict],
-    seed: Optional[int],
-) -> DiabetesPIDEnv:
-    env = DiabetesPIDEnv(
-        patient_params=profile.patient_params,
-        patient_weight=profile.patient_weight,
-        target_glucose=profile.target_glucose,
-        seed=seed,
-        observation_noise_std=profile.observation_noise_std,
-        carb_ratio_override=profile.carb_ratio,
-        isf_override=profile.isf,
-        # Skip random scenario reload to honour the injected schedules.
-        test_case_id=None,
-        # Never cut the episode short in the demo — show the full 24-hour graph
-        # even when BGL crashes below 40 mg/dL.  Training mode keeps early-stop.
-        demo_mode=True,
+def _build_patient_config(profile: PatientProfile, seed: Optional[int] = None) -> PatientConfig:
+    return PatientConfig(
+        name=profile.name,
+        params=profile.patient_params,
+        body_weight_kg=profile.patient_weight,
     )
-    env.set_meal_schedule(meals)
-    env.set_exercise_schedule(exercise)
-    env._skip_reload = True  # tell DiabetesPIDEnv.reset() to keep our schedule
-    env.patient_weight = profile.patient_weight
-    return env
 
 
 def run_demo_episode(
@@ -367,24 +351,47 @@ def run_demo_episode(
     horizon: int,
     seed: Optional[int],
 ) -> Optional[EpisodeRecord]:
-    """Run one episode. For ``controller=='rl'``, returns ``None`` if no
-    actor weights are present so the UI does not mislabel a baseline run
-    as RL.
-    """
-    env = _build_env(profile, meals, exercise, seed)
-    actor = None
+    """Run one episode using SimulationRunner."""
+    patient_cfg = _build_patient_config(profile, seed)
+
+    # 1. Setup Controller
+    pid = PIDController(
+        Kp=profile.patient_params.get("Kp", 0.1),
+        Ki=profile.patient_params.get("Ki", 0.001),
+        Kd=profile.patient_params.get("Kd", 0.05),
+        target_mgdl=profile.target_glucose,
+        basal_u_h=profile.patient_params.get("U_basal", 1.0)
+    )
+
     if controller == "rl":
         mtime = _get_actor_mtime()
         actor = _load_actor_cached(mtime)
         if actor is None:
             return None
-    record = run_episode(
-        env,
-        controller=controller,
-        max_steps=horizon,
-        actor=actor,
-        seed=seed,
+        controller_obj = SupervisoryController(agent=actor, inner_pid=pid)
+    else:
+        controller_obj = pid
+
+    # 2. Run Simulation
+    record = run_simulation(
+        patient_config=patient_cfg,
+        controller=controller_obj,
+        meals=meals,
+        exercise=exercise,
+        duration_min=horizon
     )
+
+    # 3. Post-process stats for UI
+    summary = glucose_trajectory_summary(record.glucose)
+    record.metadata["stats"] = summary
+    # Add total insulin to stats
+    record.metadata["stats"]["total_insulin"] = float(np.sum(record.insulin) * (5/60)) # assuming 5 min steps
+
+    record.controller_name = controller
+    record.target_glucose = profile.target_glucose
+    record.meals = meals
+    record.exercise = exercise
+
     return record
 
 

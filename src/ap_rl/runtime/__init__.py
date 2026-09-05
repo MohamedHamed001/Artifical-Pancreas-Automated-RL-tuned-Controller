@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
-from ap_rl.runtime.rollout import (
+from ap_rl.core.records import (
     EpisodeRecord,
+)
+from ap_rl.runtime.rollout import (
     run_episode,
     load_actor_from_checkpoints,
 )

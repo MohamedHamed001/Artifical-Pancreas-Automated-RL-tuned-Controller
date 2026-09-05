@@ -27,6 +27,9 @@ env/
 *.swp
 *.swo
 
+# Local AI assistant settings (may contain credentials)
+.claude/settings.json
+
 # OS artifacts
 .DS_Store
 Thumbs.db
@@ -52,6 +55,14 @@ checkpoints/*.pt
 temp_data/
 *.log
 training_progress.png
+/baseline_capture.json
+/case10_simulation.png
+/parity_comparison.png
+/verification_result.png
+/check.patientModel_RL.png
+/issues.json
+/current_status.txt
+/scratch/
 
 # Pytest / coverage
 .pytest_cache/

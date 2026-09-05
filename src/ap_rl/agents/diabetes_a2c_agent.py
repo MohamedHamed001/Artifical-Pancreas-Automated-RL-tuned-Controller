@@ -43,8 +43,14 @@ class DiabetesA2CAgent:
     def __init__(self, env, save_dir: Optional[str | os.PathLike] = None) -> None:
         self.env = env
 
-        _ = env.reset()
-        self.state_dim = len(env._get_state())
+        # Gymnasium reset returns (obs, info)
+        res = env.reset()
+        if isinstance(res, tuple) and len(res) == 2:
+            obs, _ = res
+        else:
+            obs = res  # Compatibility fallback
+
+        self.state_dim = env.observation_space.shape[0] if hasattr(env.observation_space, "shape") else len(obs)
         self.action_dim = 3
         self.action_bound = 0.1
 
@@ -135,12 +141,18 @@ class DiabetesA2CAgent:
 
         for cid in case_ids:
             env = env_factory(cid)
-            state = env.reset()
+            res = env.reset()
+            state = res[0] if isinstance(res, tuple) else res
             episode_reward = 0.0
             done = False
             while not done:
-                action = self.actor.get_action(state)  # training=False inside
-                state, reward, done, _ = env.step(action)
+                action = self.actor.get_action(state)
+                step_res = env.step(action)
+                if len(step_res) == 5:
+                    state, reward, terminated, truncated, _ = step_res
+                    done = terminated or truncated
+                else:
+                    state, reward, done, _ = step_res
                 episode_reward += reward
             stats = env.get_statistics()
             tir = stats.get("time_in_range_70_180", 0.0)
@@ -203,7 +215,8 @@ class DiabetesA2CAgent:
             episode_reward = 0.0
             episode_length = 0
 
-            state = self.env.reset()
+            res = self.env.reset()
+            state = res[0] if isinstance(res, tuple) else res
             done = False
 
             if verbose:
@@ -214,7 +227,12 @@ class DiabetesA2CAgent:
                 noise = np.random.normal(0, self.exploration_noise, size=action.shape)
                 action = np.clip(action + noise, -self.action_bound, self.action_bound)
 
-                next_state, reward, done, info = self.env.step(action)
+                step_res = self.env.step(action)
+                if len(step_res) == 5:
+                    next_state, reward, terminated, truncated, info = step_res
+                    done = terminated or truncated
+                else:
+                    next_state, reward, done, info = step_res
 
                 traj_states.append(state)
                 traj_actions.append(action)

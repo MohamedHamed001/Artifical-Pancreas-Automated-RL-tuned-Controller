@@ -27,14 +27,14 @@ class PID:
         P: float = 1.2,
         I: float = 1.0,
         D: float = 0.0001,
-        current_time: Optional[float] = None,
+        current_time: float = 0.0,
     ) -> None:
         self.Kp = P
         self.Ki = I
         self.Kd = D
 
         self.sample_time = 0.0
-        self.current_time = current_time if current_time is not None else time.time()
+        self.current_time = current_time
         self.last_time = self.current_time
 
         self.clear()
@@ -43,7 +43,7 @@ class PID:
         """Reset accumulator state and gains-independent terms."""
         self.SetPoint = 0.0
 
-        self.PTerm = 0.2
+        self.PTerm = 0.0
         self.ITerm = 0.0
         self.DTerm = 0.0
         self.last_error = 0.0
@@ -57,7 +57,11 @@ class PID:
         """Compute the PID output for the latest feedback sample."""
         error = self.SetPoint - feedback_value
 
-        self.current_time = current_time if current_time is not None else time.time()
+        if current_time is not None:
+            self.current_time = current_time
+        else:
+            self.current_time += 1.0  # fallback to 1-min increments
+
         delta_time = self.current_time - self.last_time
         delta_error = error - self.last_error
 
