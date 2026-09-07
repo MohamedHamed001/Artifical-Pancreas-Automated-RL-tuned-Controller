@@ -1,0 +1,37 @@
+# Synthetic snapshot of the parameter values before Hovorka conformance work.
+# Comparison only; loading it does not recreate the legacy simulator dynamics.
+display_name: Legacy pre-conformance
+description: |
+  Legacy parameter values preserved for comparison only. This profile does
+  not recreate the legacy simulator dynamics through the current conformance
+  model.
+patient_weight: 75
+target_glucose: 120
+patient_params:
+  BW: 75
+  k_a1: 0.006
+  k_a2: 0.06
+  k_a3: 0.05
+  k_b1: 0.003
+  k_b2: 0.06
+  k_b3: 0.04
+  k_c1: 0.5
+  V_I: 0.12
+  t_max_I: 55
+  k_e: 0.138
+  F_01: 0.0097
+  V_G: 0.16
+  k_12: 0.066
+  EGP_0: 0.0161
+  AG: 1.0
+  t_max_G: 30
+  G_init: 10.0
+  A_EGP: 0.05
+  phi_EGP: -60
+  F_peak: 1.35
+  K_rise: 5.0
+  K_decay: 0.01
+  G_thresh: 9.0
+  k_R: 0.0031
+insulin: {}
+observation_noise_std: 0.0

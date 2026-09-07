@@ -9,7 +9,6 @@ sys.path.append(os.path.join(os.getcwd(), "src"))
 from ap_rl.simulation.simulator import SimulationRunner, SimulationConfig
 from ap_rl.controllers.pid_controller import PIDController
 from ap_rl.utils.scenarios import ScenarioLoader
-from ap_rl.utils.paths import data_dir
 from ap_rl.envs.defaults import DEFAULT_PATIENT_PARAMS as hovorka_params
 
 def run_case_10_modular():
@@ -47,13 +46,11 @@ def run_case_10_modular():
 
     # 4. Load Scenario Data
     loader = ScenarioLoader()
-    d_dir = data_dir()
-    meal_data = loader.load_data_file(d_dir / "MealData_case10.data")
-    exercise_data = loader.load_data_file(d_dir / "ExerciseData_case10.data")
+    scenario = loader.load_case(10)
 
     # 5. Run
     print("Starting 24h simulation for Case 10...")
-    episode = runner.run(meal_data=meal_data, exercise_data=exercise_data)
+    episode = runner.run(scenario=scenario)
     print(f"Simulation complete. Total Reward: {episode.total_reward:.2f}")
 
     # 6. Plot Results

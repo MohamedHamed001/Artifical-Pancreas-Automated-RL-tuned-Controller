@@ -1,6 +1,31 @@
 import numpy as np
-from typing import Dict, Any, Tuple
+from typing import Any, Callable, Dict
 from ap_rl.simulation.integrators import rk4_step
+
+DEFAULT_HOVORKA_PARAMS: Dict[str, float] = {
+    "k_a1": 0.006,
+    "k_a2": 0.06,
+    "k_a3": 0.03,
+    "k_b1": 0.03072,
+    "k_b2": 0.0492,
+    "k_b3": 1.56,
+    "V_I": 0.12,
+    "t_max_I": 55.0,
+    "k_e": 0.138,
+    "F_01": 0.0097,
+    "V_G": 0.16,
+    "k_12": 0.066,
+    "EGP_0": 0.0161,
+    "AG": 0.8,
+    "t_max_G": 40.0,
+    "A_EGP": 0.0,
+    "phi_EGP": -60.0,
+    "F_peak": 1.0,
+    "K_rise": 5.0 / 60.0,
+    "K_decay": 0.01,
+    "G_thresh": 9.0,
+    "k_R": 0.0031,
+}
 
 # Try to import numba for acceleration
 try:
@@ -12,12 +37,22 @@ except ImportError:
         def decorator(f): return f
         return decorator
 
+
+@njit(cache=True)
+def circadian_multiplier(
+    time_min: float, amplitude: float, phase_min: float
+) -> float:
+    return 1.0 + amplitude * np.sin(
+        2.0 * np.pi * (time_min - phase_min) / 1440.0
+    )
+
+
 @njit(fastmath=True, cache=True)
 def hovorka_ode(
     t: float,
     y: np.ndarray,
     u_i_min: float,
-    u_g_min: float,
+    u_g_g_min: float,
     f_sens: float,
     p: np.ndarray
 ) -> np.ndarray:
@@ -28,7 +63,7 @@ def hovorka_ode(
         t: Time in minutes
         y: State vector [S1, S2, I, x1, x2, x3, Q1, Q2, D1, D2]
         u_i_min: Insulin infusion rate (U/min)
-        u_g_min: Glucose appearance rate from gut (mmol/min) - computed from D2
+        u_g_g_min: External glucose input to the gut compartment (g/min)
         f_sens: Exercise sensitivity multiplier
         p: Parameter array
     """
@@ -47,15 +82,15 @@ def hovorka_ode(
     dI = (S2 / (t_max_I * V_I)) - k_e * I
 
     # Insulin action sub-model
-    dx1 = k_b1 * I - k_a1 * x1
-    dx2 = k_b2 * I - k_a2 * x2
-    dx3 = k_b3 * I - k_a3 * x3
+    dx1 = f_sens * k_b1 * I - k_a1 * x1
+    dx2 = f_sens * k_b2 * I - k_a2 * x2
+    dx3 = f_sens * k_b3 * I - k_a3 * x3
 
     # Glucose sub-model
     glucose = Q1 / V_G if V_G > 0 else 0.0
 
     # Circadian EGP
-    egp_t = EGP_0 * (1 + A_EGP * np.sin(2 * np.pi * (t - phi_EGP) / 1440))
+    egp_t = EGP_0 * circadian_multiplier(t, A_EGP, phi_EGP)
     egp = egp_t * (1.0 - x3)
 
     # Renal clearance
@@ -64,25 +99,20 @@ def hovorka_ode(
     else:
         f_r = 0.0
 
-    # Glucose consumption/utilization (F01)
-    # F01 is non-insulin dependent, but scales down at low glucose in some models
-    # if glucose < 4.5:
-    #     f_01_total = F_01 * (glucose / 4.5)
-    # else:
-    #     f_01_total = F_01
-    f_01_total = F_01
-
-    # Inter-compartmental transport (k_12 + x1)
-    # disposal (x2)
+    # Non-insulin-dependent glucose consumption
+    if glucose < 4.5:
+        f_01_total = F_01 * glucose / 4.5
+    else:
+        f_01_total = F_01
 
     # U_id is glucose appearance from gut (D2 is now in mmol)
     u_id = (AG * D2) / t_max_G
 
-    dQ1 = u_id + egp - f_r - f_01_total - (k_12 + x1) * Q1 + k_12 * Q2
-    dQ2 = (k_12 + x1) * Q1 - k_12 * Q2 - x2 * Q2
+    dQ1 = u_id + egp - f_r - f_01_total - x1 * Q1 + k_12 * Q2
+    dQ2 = x1 * Q1 - (k_12 + x2) * Q2
 
     # Meal sub-model (convert input g to mmol)
-    dD1 = (u_g_min / 0.180182) - D1 / t_max_G
+    dD1 = (u_g_g_min / 0.180182) - D1 / t_max_G
     dD2 = (D1 - D2) / t_max_G
 
     return np.array([dS1, dS2, dI, dx1, dx2, dx3, dQ1, dQ2, dD1, dD2])
@@ -90,26 +120,27 @@ def hovorka_ode(
 
 def pack_params(p_dict: Dict[str, Any], body_weight: float) -> np.ndarray:
     """Pack dictionary parameters into a Numba-friendly array."""
+    params = {**DEFAULT_HOVORKA_PARAMS, **p_dict}
     return np.array([
-        p_dict.get("k_a1", 0.006),
-        p_dict.get("k_a2", 0.06),
-        p_dict.get("k_a3", 0.05),
-        p_dict.get("k_b1", 0.003),
-        p_dict.get("k_b2", 0.06),
-        p_dict.get("k_b3", 0.04),
-        p_dict.get("V_I", 0.12) * body_weight,
-        p_dict.get("t_max_I", 55),
-        p_dict.get("k_e", 0.138),
-        p_dict.get("F_01", 0.0097) * body_weight,
-        p_dict.get("V_G", 0.16) * body_weight,
-        p_dict.get("k_12", 0.066),
-        p_dict.get("EGP_0", 0.0161) * body_weight,
-        p_dict.get("AG", 1.0),
-        p_dict.get("t_max_G", 40),
-        p_dict.get("A_EGP", 0.05),
-        p_dict.get("phi_EGP", -60),
-        p_dict.get("G_thresh", 9.0),
-        p_dict.get("k_R", 0.0031),
+        params["k_a1"],
+        params["k_a2"],
+        params["k_a3"],
+        params["k_b1"],
+        params["k_b2"],
+        params["k_b3"],
+        params["V_I"] * body_weight,
+        params["t_max_I"],
+        params["k_e"],
+        params["F_01"] * body_weight,
+        params["V_G"] * body_weight,
+        params["k_12"],
+        params["EGP_0"] * body_weight,
+        params["AG"],
+        params["t_max_G"],
+        params["A_EGP"],
+        params["phi_EGP"],
+        params["G_thresh"],
+        params["k_R"],
     ], dtype=np.float64)
 
 
@@ -117,7 +148,7 @@ def hovorka_step(
     state: np.ndarray,
     t: float,
     u_i_min: float,
-    f_sens: float,
+    f_sens_at: Callable[[float], float],
     p_array: np.ndarray,
     dt: float = 1.0
 ) -> np.ndarray:
@@ -125,7 +156,9 @@ def hovorka_step(
     Advance Hovorka state by dt minutes using RK4 and non-negativity guards.
     """
     def rhs(curr_t, curr_y):
-        return hovorka_ode(curr_t, curr_y, u_i_min, 0.0, f_sens, p_array)
+        return hovorka_ode(
+            curr_t, curr_y, u_i_min, 0.0, f_sens_at(curr_t), p_array
+        )
 
     new_state = rk4_step(rhs, t, state, dt)
 

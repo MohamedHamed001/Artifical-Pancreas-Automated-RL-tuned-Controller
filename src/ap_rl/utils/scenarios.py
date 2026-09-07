@@ -98,7 +98,32 @@ class ScenarioLoader:
 
         # Parse structured events
         all_cases = ScenarioLoader._parse_test_cases(d)
+        has_structured_case = case_id in all_cases
         case_info = all_cases.get(case_id, {"meals": [], "exercise": []})
+
+        if (
+            meal_data.size
+            and np.any(meal_data[:, 1] != 0)
+            and not case_info["meals"]
+        ):
+            raise ValueError(
+                f"case {case_id} has non-empty legacy meal data; "
+                "structured meal metadata is required"
+            )
+        if (
+            exercise_data.size
+            and np.any(exercise_data[:, 1] != 0)
+            and not case_info["exercise"]
+        ):
+            raise ValueError(
+                f"case {case_id} has non-empty legacy exercise data; "
+                "structured exercise metadata is required"
+            )
+
+        if has_structured_case and not case_info["meals"]:
+            meal_data = None
+        if has_structured_case and not case_info["exercise"]:
+            exercise_data = None
 
         return Scenario(
             id=f"case{case_id}",

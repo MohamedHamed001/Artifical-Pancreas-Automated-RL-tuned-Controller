@@ -54,6 +54,41 @@ def test_deliver_bolus_locks_out_subsequent_call(calc: InsulinCalculator) -> Non
     assert "lockout" in second["reason"].lower()
 
 
+def test_new_calculator_can_deliver_bolus_at_minute_zero(
+    calc: InsulinCalculator,
+) -> None:
+    calc.set_current_time(0)
+
+    result = calc.deliver_bolus(50, 180.0)
+
+    assert result["delivered"] is True
+
+
+def test_tail_rates_integrate_to_returned_tail_dose(
+    calc: InsulinCalculator,
+) -> None:
+    calc.set_current_time(100)
+    result = calc.deliver_bolus(50, 180.0)
+
+    assert result["delivered"] is True
+    tail_rates_u_h = [
+        calc.drain_tail_dose()
+        for _ in range(math.ceil(calc.tail_duration_min) + 2)
+    ]
+
+    assert sum(tail_rates_u_h) / 60.0 == pytest.approx(result["tail_dose"])
+
+
+def test_reset_allows_bolus_at_minute_zero(calc: InsulinCalculator) -> None:
+    calc.set_current_time(100)
+    assert calc.deliver_bolus(50, 180.0)["delivered"] is True
+
+    calc.reset()
+    calc.set_current_time(0)
+
+    assert calc.deliver_bolus(50, 180.0)["delivered"] is True
+
+
 def test_deliver_bolus_after_lockout_succeeds(calc: InsulinCalculator) -> None:
     calc.set_current_time(0)
     calc.deliver_bolus(50, 180.0)

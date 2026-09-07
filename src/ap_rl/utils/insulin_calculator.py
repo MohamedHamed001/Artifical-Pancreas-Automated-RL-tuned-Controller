@@ -68,7 +68,7 @@ class InsulinCalculator:
         )
         self.isf = isf if isf is not None else self._calculate_isf()
 
-        self.last_insulin_time = 0
+        self.last_insulin_time = float("-inf")
         self.current_time = 0
         self.insulin_lockout_duration = lockout_duration_min
 
@@ -166,8 +166,9 @@ class InsulinCalculator:
         """Compute and deliver a split meal bolus + correction.
 
         The immediate portion (``split_ratio``) is returned in
-        ``immediate_dose``.  The tail portion is stored internally and
-        dispensed each minute via :meth:`drain_tail_dose`.
+        ``immediate_dose`` as units to deliver during the current simulator
+        minute.  The tail portion is stored internally and dispensed each
+        minute via :meth:`drain_tail_dose`.
         """
         if self.is_insulin_locked_out():
             return {
@@ -262,5 +263,5 @@ class InsulinCalculator:
         """Reset tail-dose state (call at episode start)."""
         self.pending_tail_dose = 0.0
         self.tail_rate_per_min = 0.0
-        self.last_insulin_time = 0
+        self.last_insulin_time = float("-inf")
         self.current_time = 0

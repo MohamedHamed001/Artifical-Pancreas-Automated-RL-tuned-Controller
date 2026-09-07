@@ -47,6 +47,27 @@ def test_step_returns_tuple(env: DiabetesPIDEnv) -> None:
     assert "Kp" in info and "Ki" in info and "Kd" in info
 
 
+@pytest.mark.parametrize("safety_blocked", [False, True])
+def test_step_observation_uses_safety_delivered_iob(
+    env: DiabetesPIDEnv, safety_blocked: bool
+) -> None:
+    env.reset()
+    if safety_blocked:
+        env.runner.safety.min_glucose_mgdl = 1000.0
+
+    observation, _, _, _, info = env.step(
+        np.zeros(env.action_space.shape, dtype=np.float32)
+    )
+
+    if safety_blocked:
+        assert info["total_insulin"] == 0.0
+        assert info["iob"] == 0.0
+    else:
+        assert info["total_insulin"] > 0.0
+        assert info["iob"] == pytest.approx(info["total_insulin"] / 60.0)
+    assert observation[15] == pytest.approx(info["iob"] / 10.0)
+
+
 def test_baseline_short_episode_no_termination(env: DiabetesPIDEnv) -> None:
     env.reset()
     action = np.zeros(env.action_space.shape, dtype=np.float32)

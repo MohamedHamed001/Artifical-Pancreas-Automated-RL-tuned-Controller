@@ -1,0 +1,5 @@
+patient_params:
+  F_peak: 1.35
+  # Calibration assumption: K_rise = 5 h^-1 = 5 / 60 min^-1.
+  K_rise: 0.08333333333333333
+  K_decay: 0.01

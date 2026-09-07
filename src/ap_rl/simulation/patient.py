@@ -4,7 +4,7 @@ from typing import Dict, Any, List, Optional, Protocol
 from abc import ABC, abstractmethod
 
 from ap_rl.core.types import PatientState, PatientConfig
-from ap_rl.simulation.hovorka import hovorka_step, pack_params
+from ap_rl.simulation.hovorka import DEFAULT_HOVORKA_PARAMS, hovorka_step, pack_params
 
 
 class PatientModel(ABC):
@@ -42,6 +42,7 @@ class HovorkaPatientModel(PatientModel):
         self._f_sens = 1.0
         self._exercise_start_time: Optional[int] = None
         self._exercise_end_time: Optional[int] = None
+        self._exercise_end_sensitivity = 1.0
         self._prev_exercise_active = False
 
     def _initialize_state(self) -> np.ndarray:
@@ -54,18 +55,18 @@ class HovorkaPatientModel(PatientModel):
         basal_u_min = 1.0 / 60.0
 
         # Pull parameters
-        params = self.config.params
-        t_max_I = params.get("t_max_I", 55.0)
-        V_I = params.get("V_I", 0.12) * self.config.body_weight_kg
-        k_e = params.get("k_e", 0.138)
+        params = {**DEFAULT_HOVORKA_PARAMS, **self.config.params}
+        t_max_I = params["t_max_I"]
+        V_I = params["V_I"] * self.config.body_weight_kg
+        k_e = params["k_e"]
 
         # Insulin action rates
-        k_a1 = params.get("k_a1", 0.006)
-        k_a2 = params.get("k_a2", 0.06)
-        k_a3 = params.get("k_a3", 0.05)
-        k_b1 = params.get("k_b1", 0.003)
-        k_b2 = params.get("k_b2", 0.06)
-        k_b3 = params.get("k_b3", 0.04)
+        k_a1 = params["k_a1"]
+        k_a2 = params["k_a2"]
+        k_a3 = params["k_a3"]
+        k_b1 = params["k_b1"]
+        k_b2 = params["k_b2"]
+        k_b3 = params["k_b3"]
 
         # 1. Steady-state Insulin (Absorption sub-model)
         state[0] = basal_u_min * t_max_I  # S1
@@ -83,12 +84,12 @@ class HovorkaPatientModel(PatientModel):
         if g_init > 30: # Heuristic: if > 30, it's likely mg/dL
             g_init = g_init / 18.0182
 
-        v_g = params.get("V_G", 0.16) * self.config.body_weight_kg
+        v_g = params["V_G"] * self.config.body_weight_kg
         state[6] = g_init * v_g  # Q1
 
-        # 4. Q2 steady state: dQ2/dt = (k12 + x1)Q1 - (k12 + x2)Q2 = 0
-        k_12 = params.get("k_12", 0.066)
-        state[7] = state[6] * (k_12 + state[3]) / (k_12 + state[4])
+        # 4. Q2 steady state: dQ2/dt = x1*Q1 - (k12 + x2)*Q2 = 0
+        k_12 = params["k_12"]
+        state[7] = state[3] * state[6] / (k_12 + state[4])
 
         return state
 
@@ -102,7 +103,9 @@ class HovorkaPatientModel(PatientModel):
         self._f_sens = 1.0
         self._exercise_start_time = None
         self._exercise_end_time = None
+        self._exercise_end_sensitivity = 1.0
         self._prev_exercise_active = False
+        self._last_glucose_rate = 0.0
 
         return self.state
 
@@ -128,10 +131,12 @@ class HovorkaPatientModel(PatientModel):
                 self._state_vec,
                 float(t) + i * 0.1,
                 u_i_min,
-                self._f_sens,
+                self._exercise_sensitivity,
                 self._p_array,
                 dt=0.1
             )
+
+        self._f_sens = self._exercise_sensitivity(float(t) + 1.0)
 
         q1_after = self._state_vec[6]
         dq1_dt = (q1_after - q1_before) / 1.0 # mmol/min
@@ -144,22 +149,30 @@ class HovorkaPatientModel(PatientModel):
             self._exercise_start_time = self._time_min
             self._exercise_end_time = None
         elif not active and self._prev_exercise_active:
+            self._exercise_end_sensitivity = self._exercise_sensitivity(
+                self._time_min
+            )
             self._exercise_end_time = self._time_min
 
         self._prev_exercise_active = active
+        self._f_sens = self._exercise_sensitivity(self._time_min)
 
-        f_peak = self.config.params.get("F_peak", 1.35)
-        k_rise = self.config.params.get("K_rise", 5.0)
-        k_decay = self.config.params.get("K_decay", 0.01)
+    def _exercise_sensitivity(self, time_min: float) -> float:
+        f_peak = self.config.params.get("F_peak", DEFAULT_HOVORKA_PARAMS["F_peak"])
+        k_rise = self.config.params.get("K_rise", DEFAULT_HOVORKA_PARAMS["K_rise"])
+        k_decay = self.config.params.get(
+            "K_decay", DEFAULT_HOVORKA_PARAMS["K_decay"]
+        )
 
-        if active and self._exercise_start_time is not None:
-            t_rise = self._time_min - self._exercise_start_time
-            self._f_sens = 1 + (f_peak - 1) * (1 - np.exp(-k_rise * t_rise))
-        elif not active and self._exercise_end_time is not None:
-            t_decay = self._time_min - self._exercise_end_time
-            self._f_sens = 1 + (f_peak - 1) * np.exp(-k_decay * t_decay)
-        else:
-            self._f_sens = 1.0
+        if self._prev_exercise_active and self._exercise_start_time is not None:
+            t_rise = time_min - self._exercise_start_time
+            return 1 + (f_peak - 1) * (1 - np.exp(-k_rise * t_rise))
+        if self._exercise_end_time is not None:
+            t_decay = time_min - self._exercise_end_time
+            return 1 + (self._exercise_end_sensitivity - 1) * np.exp(
+                -k_decay * t_decay
+            )
+        return 1.0
 
     @property
     def time(self) -> int:
@@ -179,17 +192,21 @@ class HovorkaPatientModel(PatientModel):
 
         # Use stored rate from last step, or 0 if just reset
         rate = getattr(self, "_last_glucose_rate", 0.0)
+        sc_depot_insulin_u = float(self._state_vec[0] + self._state_vec[1])
 
         return PatientState(
             time_min=self._time_min,
             glucose_mgdl=glucose_mgdl,
             glucose_rate_mgdl_min=rate,
-            iob_u=float(self._state_vec[0] + self._state_vec[1]),
+            # Controller IOB is owned by SimulationRunner and populated only
+            # after safety decides what insulin was actually delivered.
+            iob_u=0.0,
             cob_g=float((self._state_vec[8] + self._state_vec[9]) * (180.155 / 1000.0)),
             exercise_active=self._prev_exercise_active,
             compartments={
                 "S1": float(self._state_vec[0]),
                 "S2": float(self._state_vec[1]),
+                "sc_depot_insulin_u": sc_depot_insulin_u,
                 "I": float(self._state_vec[2]),
                 "x1": float(self._state_vec[3]),
                 "x2": float(self._state_vec[4]),

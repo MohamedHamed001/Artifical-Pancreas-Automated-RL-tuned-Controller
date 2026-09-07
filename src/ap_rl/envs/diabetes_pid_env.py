@@ -1,4 +1,5 @@
 from __future__ import annotations
+from dataclasses import replace
 import os
 import numpy as np
 from typing import Optional, Dict, Any, List, Tuple
@@ -166,13 +167,15 @@ class DiabetesPIDEnv(gym.Env):
             "reward": record.reward
         }
 
-        return self._get_obs(), record.reward, terminated, truncated, info
+        return self._get_obs(iob_u=record.iob), record.reward, terminated, truncated, info
 
-    def _get_obs(self) -> np.ndarray:
+    def _get_obs(self, iob_u: Optional[float] = None) -> np.ndarray:
         """Construct observation for agent."""
         # Use SimulationRunner's internal observation building logic
         t = self.runner.current_time
         state = self.runner.patient.state
+        if iob_u is not None:
+            state = replace(state, iob_u=iob_u)
 
         is_exercising = self.runner._get_scenario_exercise(t, self.exercise_data)
 
@@ -225,9 +228,17 @@ class DiabetesPIDEnv(gym.Env):
             case_id = self._rng.integers(1, 11)
 
         self.current_case_id = case_id
-        scenario = self.loader.load_case(case_id)
-        self.meal_data = scenario.meal_data
-        self.exercise_data = scenario.exercise_data
+        scenario = self.loader.load_case(case_id, self.test_data_dir)
+        self.meal_data = (
+            scenario.meals
+            if scenario.meals or scenario.meal_data is None
+            else scenario.meal_data
+        )
+        self.exercise_data = (
+            scenario.exercise
+            if scenario.exercise or scenario.exercise_data is None
+            else scenario.exercise_data
+        )
 
     def _estimate_basal(self) -> float:
         """Estimate basal insulin based on weight."""

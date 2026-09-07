@@ -13,6 +13,12 @@
 > plotting helpers. **Research / engineering demo only — not a medical
 > device, not clinically validated.**
 
+> [!CAUTION]
+> Existing and downloadable controller checkpoints were trained on the legacy
+> pre-conformance simulator physics. They must not be used to compare
+> controller performance with the conformance model; new evaluation data and
+> checkpoints must be produced after the downstream controller work is complete.
+
 ## Highlights
 
 - **Hovorka virtual patient** ODE simulator (`ap_rl.envs.HovorkaPatient`)
@@ -68,34 +74,33 @@ flowchart LR
 
 ## Quick start
 
-Use **Python 3.9–3.12** for `pip install -e .` (TensorFlow does not yet support
-Python 3.13 for training/inference wheels on all platforms).
+Use Python **3.11**, selected by `.python-version`. The project uses `uv` to
+resolve the locked dependency graph reproducibly.
 
 ```bash
-# 1. Clone + install (editable)
+# 1. Clone + install the locked contributor environment
 git clone https://github.com/<your-org>/Artifical-Pancreas-Automated-RL-tuned-Controller.git
 cd Artifical-Pancreas-Automated-RL-tuned-Controller
-python3.11 -m venv .venv && source .venv/bin/activate   # or python3.10 / 3.12
-pip install -e ".[demo,dev]"
+uv sync --locked --all-extras
 
 # 2. (Optional) download trained A2C checkpoints
 export AP_RL_CHECKPOINT_URL=https://github.com/<your-org>/<repo>/releases/download/v0.1.0
-ap-rl-download             # or: python scripts/download_checkpoints.py
+uv run ap-rl-download      # or: uv run python scripts/download_checkpoints.py
 
 # 3. Launch the digital-twin demo
-streamlit run app/app.py
-# or: python demo.py
+uv run streamlit run app/app.py
+# or: uv run python demo.py
 
 # 4. (Optional) train your own weights
-ap-rl-train --preset default --seed 42
+uv run ap-rl-train --preset default --seed 42
 ```
 
-If you skip the `pip install -e .` step you can still run scripts and
-the demo from the repo root - they prepend `src/` to `sys.path`:
+`uv run` executes commands inside the managed environment. For scripts that
+are intentionally runnable directly from the repository root:
 
 ```bash
-PYTHONPATH=src python scripts/smoke_baseline_rollout.py
-PYTHONPATH=src streamlit run app/app.py
+uv run python scripts/smoke_baseline_rollout.py
+uv run streamlit run app/app.py
 ```
 
 ## Repository layout
@@ -146,8 +151,9 @@ meal bolus rules. That path is what the Streamlit demo and
 For experiments that prefer a Gymnasium-style loop, there is an
 **optional** wrapper :class:`ap_rl.envs.HovorkaGymEnv` (same underlying
 ``DiabetesPIDEnv`` dynamics). It is not required for training or the
-demo. Install Gymnasium with ``pip install -e ".[gym]"`` — see
-``pyproject.toml`` optional dependencies.
+demo. Gymnasium is part of the base project dependencies because the
+environment imports it unconditionally. See ``pyproject.toml`` for the
+optional RL, MPC, demo, fast, and development extras.
 
 ## How RL tunes PID
 
@@ -186,7 +192,9 @@ Weights are written to `<repo>/checkpoints/` as
 `diabetes_actor_<name>.weights.h5` / `diabetes_critic_<name>.weights.h5`
 (Keras 3 ``save_weights`` format). The best episode is saved as
 `diabetes_actor_best.weights.h5` automatically. Legacy ``*.h5`` files
-from older runs are still loaded when present.
+from older runs are still loaded when present, but all existing checkpoints
+were trained on the legacy physics and are invalid for conformance-model
+comparisons.
 
 ## Synthetic patient profiles
 
@@ -203,12 +211,20 @@ directly. All four ship in `configs/profiles/`:
 Important: the profiles are **synthetic**. They do not represent real
 patients and are not appropriate for clinical decisions.
 
+The modular `SimulationRunner` tracks controller IOB from insulin that passes
+the safety layer using a research-only, two-stage rapid-acting action curve.
+The default `iob_duration_min: 240` gives a roughly 60-minute peak and an exact
+four-hour cutoff; profiles may override that value under `patient_params`.
+This transparent assumption is not clinically validated. Hovorka `S1 + S2`
+remains available separately as the `sc_depot_insulin_u` diagnostic and is not
+used as controller IOB.
+
 ## Tests
 
 ```bash
-pytest -q          # full suite (~1 s, no TF required)
-pytest -v          # verbose
-pytest tests/test_env_step.py -k seed_reproducibility
+uv run pytest -q          # full suite (~1 s, no TF required)
+uv run pytest -v          # verbose
+uv run pytest tests/test_env_step.py -k seed_reproducibility
 ```
 
 ## Deployment notes
@@ -233,7 +249,7 @@ docker run --rm -p 8501:8501 -e AP_RL_CHECKPOINT_URL=https://github.com/org/repo
 ### Hugging Face Spaces
 
 1. Create a Streamlit space.
-2. Push this repo. Spaces will install `requirements.txt` automatically.
+2. Push this repo and configure the Space to install from `pyproject.toml`.
 3. Set `AP_RL_CHECKPOINT_URL` in Space secrets to a public Release URL.
 4. The first cold start downloads weights into `checkpoints/`.
 
@@ -242,7 +258,8 @@ docker run --rm -p 8501:8501 -e AP_RL_CHECKPOINT_URL=https://github.com/org/repo
 1. Point the app at `app/app.py`.
 2. Set `AP_RL_CHECKPOINT_URL` in Secrets if you want RL mode on first
    render.
-3. Add `requirements.txt` is at the repo root — it is.
+3. Configure the app to use the Python 3.11 environment defined by
+   `pyproject.toml` and `.python-version`.
 
 ## Safety disclaimer
 
