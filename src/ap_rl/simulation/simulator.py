@@ -7,7 +7,7 @@ from ap_rl.core.types import PatientConfig, PatientState, InsulinCommand, Safety
 from ap_rl.simulation.patient import HovorkaPatientModel
 from ap_rl.simulation.iob import DEFAULT_IOB_DURATION_MIN, RapidActingIOB
 from ap_rl.controllers.base import Controller
-from ap_rl.controllers.safety import SafetySupervisor
+from ap_rl.controllers.safety import SafetyPolicy, SafetySupervisor
 from ap_rl.simulation.observations import ObservationBuilder
 from ap_rl.rewards.standard import ClinicalZoneReward
 from ap_rl.core.records import StepRecord, EpisodeRecord
@@ -28,6 +28,7 @@ class SimulationConfig:
     # Safety params
     min_glucose_mgdl: float = 70.0
     max_iob_factor: float = 3.0
+    safety_policy: SafetyPolicy | None = None
 
 
 class SimulationRunner:
@@ -52,11 +53,14 @@ class SimulationRunner:
         self.controller.reset()
 
         # Initialize Safety
-        self.safety = SafetySupervisor(
-            min_glucose_mgdl=config.min_glucose_mgdl,
-            max_iob_factor=config.max_iob_factor,
-            enable_low_suspend=True
-        )
+        if config.safety_policy is None:
+            self.safety = SafetySupervisor(
+                min_glucose_mgdl=config.min_glucose_mgdl,
+                max_iob_factor=config.max_iob_factor,
+                enable_low_suspend=True,
+            )
+        else:
+            self.safety = SafetySupervisor(config.safety_policy)
 
         # Initialize Reward
         self.reward_fn = ClinicalZoneReward(target_mgdl=config.target_glucose_mgdl)

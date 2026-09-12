@@ -1,6 +1,9 @@
+from unittest.mock import patch
+
 import numpy as np
 import pytest
 
+from ap_rl.controllers.safety import SafetyPolicy
 from ap_rl.core.types import PatientConfig
 from ap_rl.envs.defaults import DEFAULT_PATIENT_PARAMS
 from ap_rl.simulation.iob import RapidActingIOB
@@ -21,7 +24,12 @@ class FixedController:
         pass
 
 
-def _make_runner(rate_u_h: float, *, params: dict | None = None) -> SimulationRunner:
+def _make_runner(
+    rate_u_h: float,
+    *,
+    params: dict | None = None,
+    safety_policy: SafetyPolicy | None = None,
+) -> SimulationRunner:
     return SimulationRunner(
         SimulationConfig(
             patient_config=PatientConfig(
@@ -32,6 +40,7 @@ def _make_runner(rate_u_h: float, *, params: dict | None = None) -> SimulationRu
             controller=FixedController(rate_u_h),
             duration_min=1,
             dt_min=1,
+            safety_policy=safety_policy,
         )
     )
 
@@ -111,6 +120,21 @@ def test_runner_converts_safety_delivered_rate_to_active_units() -> None:
 
     assert record.delivered_insulin == pytest.approx(6.0)
     assert record.iob == pytest.approx(0.1)
+
+
+def test_runner_sends_rate_capped_delivery_to_patient_and_iob() -> None:
+    runner = _make_runner(
+        rate_u_h=20.0,
+        safety_policy=SafetyPolicy(max_delivery_rate_u_h=2.0),
+    )
+
+    with patch.object(runner.patient, "step", wraps=runner.patient.step) as patient_step:
+        record = runner.step()
+
+    assert record.requested_insulin == pytest.approx(20.0)
+    assert record.delivered_insulin == pytest.approx(2.0)
+    assert record.iob == pytest.approx(2.0 / 60.0)
+    assert patient_step.call_args.kwargs["insulin_rate_u_h"] == pytest.approx(2.0)
 
 
 def test_hovorka_depot_is_diagnostic_not_controller_iob() -> None:

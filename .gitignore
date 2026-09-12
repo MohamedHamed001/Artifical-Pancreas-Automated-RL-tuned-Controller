@@ -72,3 +72,4 @@ htmlcov/
 # Mypy / type caches
 .mypy_cache/
 .ruff_cache/
+/docs/superpowers

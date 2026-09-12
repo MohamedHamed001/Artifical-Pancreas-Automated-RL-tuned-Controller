@@ -5,6 +5,25 @@ from typing import Dict, Any, Optional
 from ap_rl.utils.pid_controller import PID
 from ap_rl.controllers.base import Controller
 
+
+class BasalOnlyController(Controller):
+    """Controller that returns a fixed basal insulin rate."""
+
+    def __init__(self, basal_u_h: float):
+        if basal_u_h < 0 or not np.isfinite(basal_u_h):
+            raise ValueError("basal_u_h must be finite and non-negative")
+        self.basal_u_h = float(basal_u_h)
+
+    def get_action(self, state: np.ndarray, info: Optional[Dict[str, Any]] = None) -> np.ndarray:
+        return np.array([self.basal_u_h], dtype=np.float32)
+
+    def reset(self) -> None:
+        pass
+
+    def update(self, reward: float, done: bool) -> None:
+        pass
+
+
 class PIDController(Controller):
     """
     Standard PID Controller for direct glucose regulation.
@@ -21,6 +40,7 @@ class PIDController(Controller):
     ):
         self.pid = PID(P=Kp, I=Ki, D=Kd)
         self.pid.SetPoint = target_mgdl
+        self._constructor_gains = (Kp, Ki, Kd)
         self.basal_u_h = basal_u_h
         self.target_mgdl = target_mgdl
         self.Kp = Kp
@@ -44,11 +64,18 @@ class PIDController(Controller):
 
     def get_action(self, state: np.ndarray, info: Optional[Dict[str, Any]] = None) -> np.ndarray:
         """
-        Compute direct insulin dose.
-        Assumes state[0] is glucose in mg/dL.
+        Compute a direct insulin dose.
+
+        The modular simulation path supplies physical glucose and simulation
+        time in ``info``. Legacy direct callers may omit ``info``; that path
+        reads ``state[0]`` and advances the PID clock by one minute.
         """
-        glucose = state[0]
-        self.pid.update(glucose)
+        if info is not None and "state" in info and "time" in info:
+            glucose = info["state"].glucose_mgdl
+            self.pid.update(glucose, current_time=info["time"])
+        else:
+            glucose = state[0]
+            self.pid.update(glucose)
 
         # PID output is typically used as a delta or adjustment to basal
         pid_adjustment = -self.pid.output * 0.01  # Legacy scaling factor
@@ -58,6 +85,9 @@ class PIDController(Controller):
 
     def reset(self) -> None:
         self.pid.clear()
+        self.Kp, self.Ki, self.Kd = self._constructor_gains
+        self.pid.current_time = 0.0
+        self.pid.last_time = 0.0
         self.pid.SetPoint = self.target_mgdl
 
     def update(self, reward: float, done: bool) -> None:
